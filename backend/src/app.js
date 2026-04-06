@@ -43,10 +43,12 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ success: false, message: err.message || 'Internal server error' })
 })
 
-app.listen(PORT, () => {
-  console.log(`\n🌐 Yimaru Backend running on http://localhost:${PORT}`)
-  console.log(`📡 Health check: http://localhost:${PORT}/api/health`)
-  console.log(`🔑 OpenAI key: ${process.env.OPENAI_API_KEY?.startsWith('sk-') ? '✅ Loaded' : '❌ MISSING — add to backend/.env'}\n`)
-})
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`\n🌐 Yimaru Backend running on http://localhost:${PORT}`)
+    console.log(`📡 Health check: http://localhost:${PORT}/api/health`)
+    console.log(`🔑 OpenAI key: ${process.env.OPENAI_API_KEY?.startsWith('sk-') ? '✅ Loaded' : '❌ MISSING — add to backend/.env'}\n`)
+  })
+}
 
 export default app
