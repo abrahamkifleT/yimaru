@@ -23,6 +23,10 @@ app.use(express.json())
 app.use('/api/auth', authRoutes)
 app.use('/api/chat', chatRoutes)
 
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to Yimaru API' })
+})
+
 // ── Health check ────────────────────────────────────────
 app.get('/api/health', (req, res) => {
   res.json({ 
