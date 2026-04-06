@@ -1,172 +1,260 @@
-import { useState, useRef, useEffect } from 'react'
-import Button from '../components/ui/Button'
-import Card from '../components/ui/Card'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import chatService from '../services/chatService'
 
-const INITIAL_MESSAGES = [
-  {
-    id: 1,
-    role: 'assistant',
-    text: "👋 Hi! I'm Yimaru AI, your personal English tutor. I can help you with grammar, vocabulary, pronunciation tips, and conversation practice.\n\nWhat would you like to work on today?",
-    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-  },
-]
+// ─── Initial welcome message ─────────────────────────────────────────────────
+const WELCOME = {
+  id: 'welcome',
+  role: 'assistant',
+  text: "👋 Hi! I'm **Yimaru AI**, your personal English tutor powered by GPT-4.\n\nI can help you with:\n• 📝 Grammar corrections & explanations\n• 📖 Vocabulary with real examples\n• 🗣️ Conversation practice\n• 🔊 Pronunciation tips\n• ✍️ Writing improvement\n\nWhat would you like to work on today?",
+  time: now(),
+}
 
 const QUICK_PROMPTS = [
-  '🗣️ Practice a conversation',
-  '📝 Check my grammar',
-  '📖 Teach me a new word',
-  '🔊 Help with pronunciation',
+  { label: '🗣️ Practice conversation', text: 'Let\'s practice a casual conversation in English.' },
+  { label: '📝 Check my grammar', text: 'Can you check my grammar? I will write a sentence.' },
+  { label: '📖 Teach me a word', text: 'Teach me an advanced English word with examples.' },
+  { label: '🔊 Pronunciation tip', text: 'Give me a useful English pronunciation tip.' },
 ]
 
-function Message({ msg }) {
+function now() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+// ─── Markdown-lite renderer ──────────────────────────────────────────────────
+function renderText(text) {
+  const lines = text.split('\n')
+  return lines.map((line, i) => {
+    // Bold **text**
+    const parts = line.split(/(\*\*[^*]+\*\*)/g).map((part, j) =>
+      part.startsWith('**') && part.endsWith('**')
+        ? <strong key={j}>{part.slice(2, -2)}</strong>
+        : part
+    )
+    return <span key={i}>{parts}{i < lines.length - 1 && <br />}</span>
+  })
+}
+
+// ─── Sub-components ──────────────────────────────────────────────────────────
+function Avatar({ role }) {
+  return (
+    <div style={{
+      width: '34px', height: '34px', borderRadius: '50%', flexShrink: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: '1rem', fontWeight: 700,
+      background: role === 'user'
+        ? 'linear-gradient(135deg, #48BB78, #38A169)'
+        : 'linear-gradient(135deg, var(--color-primary), #A78BFA)',
+    }}>
+      {role === 'user' ? '👤' : '🤖'}
+    </div>
+  )
+}
+
+function MessageBubble({ msg }) {
   const isUser = msg.role === 'user'
   return (
-    <div style={{ display: 'flex', gap: '0.75rem', flexDirection: isUser ? 'row-reverse' : 'row', alignItems: 'flex-end', marginBottom: '1.25rem' }}>
-      {/* Avatar */}
-      <div style={{
-        width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
-        background: isUser ? 'var(--color-secondary)' : 'var(--color-primary)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem',
-      }}>
-        {isUser ? '👤' : '🤖'}
-      </div>
-
-      {/* Bubble */}
-      <div style={{
-        maxWidth: '72%',
-        background: isUser ? 'var(--color-primary)' : 'var(--color-card)',
-        border: isUser ? 'none' : '1px solid rgba(108,99,255,0.2)',
-        borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-        padding: '0.9rem 1.2rem',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-      }}>
-        <p style={{ margin: 0, fontSize: '0.93rem', lineHeight: 1.7, color: isUser ? '#fff' : 'var(--color-text)', whiteSpace: 'pre-wrap' }}>
-          {msg.text}
-        </p>
-        <span style={{ display: 'block', fontSize: '0.7rem', color: isUser ? 'rgba(255,255,255,0.6)' : 'var(--color-muted)', marginTop: '6px', textAlign: isUser ? 'right' : 'left' }}>
-          {msg.time}
-        </span>
-      </div>
-    </div>
-  )
-}
-
-function TypingIndicator() {
-  return (
-    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end', marginBottom: '1.25rem' }}>
-      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', flexShrink: 0 }}>🤖</div>
-      <div style={{ background: 'var(--color-card)', border: '1px solid rgba(108,99,255,0.2)', borderRadius: '18px 18px 18px 4px', padding: '0.9rem 1.2rem' }}>
-        <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-          {[0, 1, 2].map(i => (
-            <span key={i} style={{
-              width: '7px', height: '7px', background: 'var(--color-primary)', borderRadius: '50%',
-              animation: `bounce 1.2s ${i * 0.2}s ease-in-out infinite`,
-            }} />
-          ))}
+    <div style={{
+      display: 'flex',
+      gap: '0.75rem',
+      flexDirection: isUser ? 'row-reverse' : 'row',
+      alignItems: 'flex-start',
+      padding: '0.5rem 0',
+      animation: 'fadeSlideIn 0.2s ease',
+    }}>
+      <Avatar role={msg.role} />
+      <div style={{ maxWidth: '78%', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: isUser ? 'flex-end' : 'flex-start' }}>
+        <div style={{
+          background: isUser ? 'var(--color-primary)' : 'var(--color-card)',
+          border: isUser ? 'none' : '1px solid rgba(108,99,255,0.18)',
+          borderRadius: isUser ? '18px 4px 18px 18px' : '4px 18px 18px 18px',
+          padding: '0.75rem 1.1rem',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
+          lineHeight: 1.72,
+          fontSize: '0.9rem',
+          color: isUser ? '#fff' : 'var(--color-text)',
+        }}>
+          {renderText(msg.text)}
         </div>
+        <span style={{ fontSize: '0.68rem', color: 'var(--color-muted)', padding: '0 4px' }}>{msg.time}</span>
       </div>
     </div>
   )
 }
 
-export default function ChatPage() {
-  const [messages, setMessages] = useState(INITIAL_MESSAGES)
-  const [input, setInput] = useState('')
-  const [typing, setTyping] = useState(false)
-  const [error, setError] = useState(null)
-  const bottomRef = useRef(null)
-  const inputRef = useRef(null)
+function TypingDots() {
+  return (
+    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', padding: '0.5rem 0' }}>
+      <Avatar role="assistant" />
+      <div style={{
+        background: 'var(--color-card)',
+        border: '1px solid rgba(108,99,255,0.18)',
+        borderRadius: '4px 18px 18px 18px',
+        padding: '0.9rem 1.2rem',
+        display: 'flex', gap: '5px', alignItems: 'center',
+      }}>
+        {[0, 1, 2].map(i => (
+          <span key={i} style={{
+            width: '7px', height: '7px', borderRadius: '50%',
+            background: 'var(--color-primary)',
+            display: 'inline-block',
+            animation: `typingBounce 1.2s ${i * 0.18}s ease-in-out infinite`,
+          }} />
+        ))}
+      </div>
+    </div>
+  )
+}
 
+// ─── Main Component ──────────────────────────────────────────────────────────
+export default function ChatPage() {
+  const [messages, setMessages] = useState([WELCOME])
+  const [input, setInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const bottomRef = useRef(null)
+  const textareaRef = useRef(null)
+
+  // Auto-scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, typing])
+  }, [messages, isLoading])
 
-  const sendMessage = async (text) => {
-    const userMsg = { 
-      id: Date.now(), 
-      role: 'user', 
-      text, 
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
-    }
-    
+  // Auto-resize textarea
+  useEffect(() => {
+    const ta = textareaRef.current
+    if (!ta) return
+    ta.style.height = 'auto'
+    ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'
+  }, [input])
+
+  const sendMessage = useCallback(async (text) => {
+    const trimmed = text.trim()
+    if (!trimmed || isLoading) return
+
+    const userMsg = { id: Date.now(), role: 'user', text: trimmed, time: now() }
     setMessages(prev => [...prev, userMsg])
     setInput('')
     setError(null)
-    setTyping(true)
+    setIsLoading(true)
 
     try {
-      // Create conversation history context for the AI
-      const history = messages.slice(-10).map(m => ({ role: m.role, content: m.text }));
-      
-      const data = await chatService.sendMessage(text, history);
-      
-      setMessages(prev => [...prev, { 
-        id: Date.now() + 1, 
-        role: 'assistant', 
-        text: data.reply, 
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
-      }]);
+      const history = messages.map(m => ({ role: m.role, content: m.text }))
+      const data = await chatService.sendMessage(trimmed, history)
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        role: 'assistant',
+        text: data.reply,
+        time: now(),
+      }])
     } catch (err) {
-      setError(err.message || 'Failed to connect to the AI tutor. Please check your connection.');
-      console.error('Chat Error:', err);
+      setError(err.message || 'Failed to reach the AI. Please check your connection.')
     } finally {
-      setTyping(false)
+      setIsLoading(false)
+      // Re-focus input after response
+      setTimeout(() => textareaRef.current?.focus(), 100)
+    }
+  }, [messages, isLoading])
+
+  const handleSubmit = (e) => {
+    e?.preventDefault()
+    sendMessage(input)
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      sendMessage(input)
     }
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!input.trim() || typing) return
-    sendMessage(input.trim())
+  const clearChat = () => {
+    setMessages([WELCOME])
+    setError(null)
+    textareaRef.current?.focus()
   }
+
+  const userMsgCount = messages.filter(m => m.role === 'user').length
 
   return (
     <>
-      {/* Bounce animation */}
       <style>{`
-        @keyframes bounce {
-          0%,60%,100% { transform: translateY(0); }
-          30% { transform: translateY(-6px); }
+        @keyframes typingBounce {
+          0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+          30% { transform: translateY(-6px); opacity: 1; }
         }
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .chat-scroll::-webkit-scrollbar { width: 5px; }
+        .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.3); border-radius: 10px; }
+        .chat-textarea:focus { outline: none; border-color: var(--color-primary) !important; }
       `}</style>
 
-      <div style={{ display: 'flex', height: 'calc(100vh - 65px)', background: 'var(--color-dark)', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', height: 'calc(100vh - 65px)', overflow: 'hidden', background: 'var(--color-dark)' }}>
 
-        {/* ── Sidebar ── */}
+        {/* ── Sidebar ───────────────────────────────────────────── */}
         <aside style={{
-          width: '270px', flexShrink: 0, background: 'var(--color-surface)',
+          width: '260px', flexShrink: 0,
+          background: 'var(--color-surface)',
           borderRight: '1px solid rgba(108,99,255,0.15)',
-          display: 'flex', flexDirection: 'column', overflow: 'hidden',
+          display: 'flex', flexDirection: 'column',
+          transition: 'width 0.25s ease',
         }} className="hidden md:flex">
-          <div style={{ padding: '1.5rem 1.25rem', borderBottom: '1px solid rgba(108,99,255,0.12)' }}>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.1rem', marginBottom: '0.25rem' }}>🤖 AI Tutor</h2>
-            <p style={{ color: 'var(--color-muted)', fontSize: '0.8rem' }}>Always here to help you improve</p>
+
+          {/* Sidebar header */}
+          <div style={{ padding: '1.25rem', borderBottom: '1px solid rgba(108,99,255,0.12)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--color-primary), #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>🤖</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Yimaru AI</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--color-secondary)' }}>● GPT-4o-mini</div>
+              </div>
+            </div>
+            <button onClick={clearChat} style={{
+              width: '100%', padding: '9px', borderRadius: '8px',
+              background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.25)',
+              color: 'var(--color-text)', fontSize: '0.85rem', cursor: 'pointer',
+              transition: 'background 0.2s', fontFamily: 'var(--font-sans)',
+            }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(108,99,255,0.2)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(108,99,255,0.1)'}
+            >
+              + New Chat
+            </button>
           </div>
 
-          <div style={{ padding: '1.25rem', flex: 1, overflowY: 'auto' }}>
-            <p style={{ color: 'var(--color-muted)', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>Quick Start</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {QUICK_PROMPTS.map(p => (
-                <button key={p} onClick={() => sendMessage(p)}
-                  style={{
-                    background: 'rgba(108,99,255,0.08)', border: '1px solid rgba(108,99,255,0.15)',
-                    borderRadius: '8px', padding: '10px 12px', color: 'var(--color-text)',
-                    fontSize: '0.85rem', textAlign: 'left', cursor: 'pointer', transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={e => { e.target.style.background = 'rgba(108,99,255,0.18)'; e.target.style.borderColor = 'rgba(108,99,255,0.4)' }}
-                  onMouseLeave={e => { e.target.style.background = 'rgba(108,99,255,0.08)'; e.target.style.borderColor = 'rgba(108,99,255,0.15)' }}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
+          {/* Quick prompts */}
+          <div style={{ padding: '1rem', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <p style={{ color: 'var(--color-muted)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>Quick Start</p>
+            {QUICK_PROMPTS.map(p => (
+              <button key={p.label} onClick={() => sendMessage(p.text)}
+                style={{
+                  padding: '9px 12px', borderRadius: '8px', textAlign: 'left',
+                  background: 'rgba(108,99,255,0.06)', border: '1px solid rgba(108,99,255,0.12)',
+                  color: 'var(--color-text)', fontSize: '0.83rem', cursor: 'pointer',
+                  transition: 'all 0.18s', fontFamily: 'var(--font-sans)', lineHeight: 1.4,
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(108,99,255,0.16)'; e.currentTarget.style.borderColor = 'rgba(108,99,255,0.35)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(108,99,255,0.06)'; e.currentTarget.style.borderColor = 'rgba(108,99,255,0.12)' }}
+              >
+                {p.label}
+              </button>
+            ))}
 
-            <div style={{ marginTop: '2rem' }}>
-              <p style={{ color: 'var(--color-muted)', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>Session Stats</p>
-              {[['Messages sent', messages.filter(m => m.role === 'user').length], ['Words practiced', Math.floor(messages.filter(m => m.role === 'user').length * 8.4)], ['XP earned', messages.filter(m => m.role === 'user').length * 10]].map(([label, val]) => (
-                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', padding: '8px 0', borderBottom: '1px solid rgba(108,99,255,0.08)' }}>
-                  <span style={{ color: 'var(--color-muted)' }}>{label}</span>
+            {/* Session stats */}
+            <div style={{ marginTop: '1.5rem' }}>
+              <p style={{ color: 'var(--color-muted)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Session</p>
+              {[
+                ['💬', 'Messages', userMsgCount],
+                ['📝', 'Words practiced', Math.floor(userMsgCount * 9.3)],
+                ['⚡', 'XP earned', userMsgCount * 10],
+              ].map(([icon, label, val]) => (
+                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: '1px solid rgba(108,99,255,0.08)', fontSize: '0.82rem' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>{icon} {label}</span>
                   <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{val}</span>
                 </div>
               ))}
@@ -174,85 +262,115 @@ export default function ChatPage() {
           </div>
         </aside>
 
-        {/* ── Main chat pane ── */}
+        {/* ── Chat pane ─────────────────────────────────────────── */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* Header */}
-          <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid rgba(108,99,255,0.15)', background: 'var(--color-surface)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--color-primary), #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>🤖</div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: '1rem' }}>Yimaru AI Tutor</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--color-secondary)' }}>
-                <span style={{ width: '7px', height: '7px', background: 'var(--color-secondary)', borderRadius: '50%', display: 'inline-block' }} />
-                Online · Responds instantly
+
+          {/* Chat header */}
+          <div style={{
+            padding: '0.9rem 1.5rem',
+            borderBottom: '1px solid rgba(108,99,255,0.15)',
+            background: 'var(--color-surface)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--color-primary), #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>🤖</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Yimaru AI Tutor</div>
+                <div style={{ fontSize: '0.75rem', color: isLoading ? 'var(--color-accent)' : 'var(--color-secondary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: isLoading ? 'var(--color-accent)' : 'var(--color-secondary)', display: 'inline-block', animation: isLoading ? 'typingBounce 1s infinite' : 'none' }} />
+                  {isLoading ? 'Thinking…' : 'Online · GPT-4o-mini'}
+                </div>
               </div>
             </div>
+            <button onClick={clearChat}
+              style={{ background: 'none', border: '1px solid rgba(108,99,255,0.25)', borderRadius: '8px', padding: '6px 14px', color: 'var(--color-muted)', fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'var(--font-sans)' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.color = 'var(--color-primary)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(108,99,255,0.25)'; e.currentTarget.style.color = 'var(--color-muted)' }}
+            >
+              🗑 Clear
+            </button>
           </div>
 
-          {/* Messages */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', scrollbarWidth: 'thin', scrollbarColor: 'rgba(108,99,255,0.3) transparent' }}>
-            {messages.map(msg => <Message key={msg.id} msg={msg} />)}
-            {typing && <TypingIndicator />}
-            
+          {/* Messages area */}
+          <div className="chat-scroll" style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            {messages.map(msg => <MessageBubble key={msg.id} msg={msg} />)}
+            {isLoading && <TypingDots />}
+
+            {/* Error banner */}
             {error && (
-              <div style={{ 
-                margin: '1rem 0',
-                padding: '1rem',
-                background: 'rgba(252,129,129,0.1)',
-                border: '1px solid rgba(252,129,129,0.2)',
-                borderRadius: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '0.75rem'
-              }}>
-                <p style={{ color: '#FC8181', fontSize: '0.9rem', margin: 0, textAlign: 'center' }}>
-                  ⚠️ {error}
-                </p>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  style={{ borderColor: 'rgba(252,129,129,0.5)', color: '#FC8181' }}
-                  onClick={() => {
-                    const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
-                    if (lastUserMsg) sendMessage(lastUserMsg.text);
-                  }}
+              <div style={{ margin: '0.5rem 0', padding: '0.9rem 1.1rem', background: 'rgba(252,129,129,0.1)', border: '1px solid rgba(252,129,129,0.25)', borderRadius: '12px', display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ color: '#FC8181', fontSize: '0.875rem' }}>⚠️ {error}</span>
+                <button onClick={() => {
+                  const last = [...messages].reverse().find(m => m.role === 'user')
+                  if (last) sendMessage(last.text)
+                }}
+                  style={{ flexShrink: 0, background: 'rgba(252,129,129,0.15)', border: '1px solid rgba(252,129,129,0.4)', color: '#FC8181', borderRadius: '7px', padding: '5px 12px', fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}
                 >
-                  🔄 Retry last message
-                </Button>
+                  Retry
+                </button>
               </div>
             )}
+
             <div ref={bottomRef} />
           </div>
 
-          {/* Quick prompts (mobile) */}
-          <div style={{ padding: '0 1rem', overflowX: 'auto', display: 'flex', gap: '0.5rem', paddingBottom: '0.5rem' }} className="md:hidden">
+          {/* Mobile quick prompts */}
+          <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', padding: '0.5rem 1rem 0', scrollbarWidth: 'none' }} className="md:hidden">
             {QUICK_PROMPTS.map(p => (
-              <button key={p} onClick={() => sendMessage(p)} style={{ flexShrink: 0, background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.2)', borderRadius: '100px', padding: '6px 14px', color: 'var(--color-primary)', fontSize: '0.8rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>{p}</button>
+              <button key={p.label} onClick={() => sendMessage(p.text)} style={{ flexShrink: 0, background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.22)', borderRadius: '100px', padding: '5px 13px', color: 'var(--color-primary)', fontSize: '0.78rem', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'var(--font-sans)' }}>
+                {p.label}
+              </button>
             ))}
           </div>
 
-          {/* Input */}
-          <form onSubmit={handleSubmit} style={{ padding: '1rem 1.5rem', borderTop: '1px solid rgba(108,99,255,0.15)', background: 'var(--color-surface)', display: 'flex', gap: '0.75rem', alignItems: 'flex-end' }}>
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e) } }}
-              placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
-              rows={1}
-              style={{
-                flex: 1, background: 'var(--color-card)', border: '1px solid rgba(108,99,255,0.25)',
-                borderRadius: '12px', padding: '12px 16px', color: 'var(--color-text)', fontSize: '0.93rem',
-                resize: 'none', outline: 'none', fontFamily: 'var(--font-sans)',
-                transition: 'border-color 0.2s', maxHeight: '140px', lineHeight: 1.6,
-              }}
-              onFocus={e => e.target.style.borderColor = 'var(--color-primary)'}
-              onBlur={e => e.target.style.borderColor = 'rgba(108,99,255,0.25)'}
-            />
-            <Button type="submit" size="md" style={{ height: '48px', flexShrink: 0 }}>
-              Send ➤
-            </Button>
-          </form>
+          {/* Input area */}
+          <div style={{ padding: '1rem 1.25rem', background: 'var(--color-surface)', borderTop: '1px solid rgba(108,99,255,0.15)' }}>
+            <form onSubmit={handleSubmit} style={{
+              display: 'flex', gap: '0.75rem', alignItems: 'flex-end',
+              background: 'var(--color-card)',
+              border: '1.5px solid rgba(108,99,255,0.25)',
+              borderRadius: '14px',
+              padding: '0.6rem 0.75rem 0.6rem 1rem',
+              transition: 'border-color 0.2s',
+            }}
+              onFocusCapture={e => e.currentTarget.style.borderColor = 'var(--color-primary)'}
+              onBlurCapture={e => e.currentTarget.style.borderColor = 'rgba(108,99,255,0.25)'}
+            >
+              <textarea
+                ref={textareaRef}
+                className="chat-textarea"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Message Yimaru AI… (Enter to send, Shift+Enter for new line)"
+                rows={1}
+                disabled={isLoading}
+                style={{
+                  flex: 1, background: 'none', border: 'none', outline: 'none',
+                  color: isLoading ? 'var(--color-muted)' : 'var(--color-text)',
+                  fontSize: '0.93rem', fontFamily: 'var(--font-sans)',
+                  resize: 'none', lineHeight: 1.65, maxHeight: '160px',
+                  scrollbarWidth: 'none', padding: 0,
+                }}
+              />
+              <button
+                type="submit"
+                disabled={!input.trim() || isLoading}
+                style={{
+                  width: '40px', height: '40px', borderRadius: '10px', flexShrink: 0,
+                  background: input.trim() && !isLoading ? 'var(--color-primary)' : 'rgba(108,99,255,0.2)',
+                  border: 'none', cursor: input.trim() && !isLoading ? 'pointer' : 'not-allowed',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.1rem', transition: 'all 0.2s',
+                }}
+              >
+                {isLoading ? '⏳' : '➤'}
+              </button>
+            </form>
+            <p style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.7rem', color: 'var(--color-muted)' }}>
+              Yimaru AI can make mistakes. Always verify important language rules.
+            </p>
+          </div>
         </div>
       </div>
     </>
