@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useLocation } from 'react-router-dom'
 import chatService from '../services/chatService'
 import useSpeechToText from '../hooks/useSpeechToText'
 import useTextToSpeech from '../services/useTextToSpeech'
@@ -136,6 +137,7 @@ function TypingDots() {
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function ChatPage() {
+  const location = useLocation()
   const [messages, setMessages] = useState([WELCOME])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -164,6 +166,21 @@ export default function ChatPage() {
     ta.style.height = 'auto'
     ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'
   }, [input])
+
+  // Auto-start a lesson if navigated from a lesson or practice card
+  const lessonStartedRef = useRef(false)
+  useEffect(() => {
+    const topic = location.state?.lessonTopic
+    if (topic && !lessonStartedRef.current) {
+      lessonStartedRef.current = true
+      // Small delay so the welcome message renders first
+      const timer = setTimeout(() => {
+        sendMessage(`I want to practice: **${topic}**. Please guide me through this lesson step by step.`)
+      }, 800)
+      return () => clearTimeout(timer)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Track original text before dictation starts
   useEffect(() => {
