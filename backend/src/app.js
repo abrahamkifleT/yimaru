@@ -12,7 +12,9 @@ const PORT = process.env.PORT || 5000
 
 // ── Middleware ──────────────────────────────────────────
 app.use(cors({
-  origin: 'http://localhost:5173',  // Vite dev server
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL, /\.vercel\.app$/] // Allow Vercel preview/prod domains
+    : 'http://localhost:5173',
   credentials: true,
 }))
 app.use(express.json())

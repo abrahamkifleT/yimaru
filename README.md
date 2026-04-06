@@ -13,7 +13,7 @@ yimaru/
 │   │   ├── pages/
 │   │   └── services/
 │   └── package.json
-│
+│ther
 └── backend/           ← Node.js + Express REST API
     ├── src/
     │   ├── controllers/

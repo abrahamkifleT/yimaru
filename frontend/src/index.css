@@ -2,14 +2,14 @@
 @import "tailwindcss";
 
 :root {
-  --color-primary: #6C63FF;
+  --color-primary: #A3238E; /* Brand Vibrant Purple/Magenta */
   --color-secondary: #48BB78;
-  --color-accent: #F6AD55;
-  --color-dark: #0F0F1A;
-  --color-surface: #1A1A2E;
-  --color-card: #16213E;
-  --color-text: #E2E8F0;
-  --color-muted: #718096;
+  --color-accent: #FFD54F; /* Brand Warm Yellow */
+  --color-dark: #0F0A12; /* Deepest purple-tinted black */
+  --color-surface: #1A111F; /* Surface slightly tinted magenta */
+  --color-card: #201427; /* Cards with magenta/purple undertone */
+  --color-text: #F8F5FA;
+  --color-muted: #A095A8;
   --font-sans: 'Inter', sans-serif;
   --font-display: 'Poppins', sans-serif;
 }

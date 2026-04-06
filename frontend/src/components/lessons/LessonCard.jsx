@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import Card from '../ui/Card'
 import Badge from '../ui/Badge'
 import ProgressBar from '../ui/ProgressBar'
@@ -7,6 +8,13 @@ const levelColor = { Beginner: 'green', Intermediate: 'yellow', Advanced: 'red' 
 
 export default function LessonCard({ lesson }) {
   const { icon, title, desc, level, duration, xp, progress = 0 } = lesson
+  const navigate = useNavigate()
+
+  const handleStart = () => {
+    // Navigate to AI Tutor with the lesson topic pre-seeded
+    navigate('/chat', { state: { lessonTopic: title } })
+  }
+
   return (
     <Card>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
@@ -24,7 +32,7 @@ export default function LessonCard({ lesson }) {
         <span style={{ color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.85rem' }}>+{xp} XP</span>
       </div>
 
-      <Button style={{ width: '100%', marginTop: '1rem' }} size="sm">
+      <Button onClick={handleStart} style={{ width: '100%', marginTop: '1rem' }} size="sm">
         {progress > 0 ? '▶ Continue' : '🚀 Start Lesson'}
       </Button>
     </Card>

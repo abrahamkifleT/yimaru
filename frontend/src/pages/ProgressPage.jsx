@@ -1,72 +1,93 @@
-import React from 'react'
-
-const stats = [
-  { label: 'Words Learned', value: '1,248', icon: '📝', color: 'var(--color-primary)' },
-  { label: 'Lessons Completed', value: '42', icon: '📖', color: 'var(--color-secondary)' },
-  { label: 'Fluency Score', value: '78%', icon: '📈', color: 'var(--color-accent)' },
-  { label: 'Study Streak', value: '12 Days', icon: '🔥', color: '#FC8181' },
-]
+import { useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
 export default function ProgressPage() {
   return (
     <div style={{ padding: '4rem 1.5rem', minHeight: '80vh' }}>
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-10">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="text-center" style={{ marginBottom: '4rem' }}>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700, marginBottom: '0.75rem' }}>
-            📊 Progress
+            📊 Your Progress
           </h1>
           <p style={{ color: 'var(--color-muted)', maxWidth: '480px', margin: '0 auto' }}>
             Track your journey and visualize your path to English mastery.
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {stats.map((stat) => (
-            <div key={stat.label}
-              style={{ background: 'var(--color-card)', border: '1px solid rgba(108,99,255,0.15)', borderRadius: '16px', padding: '1.5rem', textAlign: 'center' }}
-            >
-              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>{stat.icon}</div>
-              <div style={{ color: 'var(--color-muted)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>{stat.label}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-text)' }}>{stat.value}</div>
-            </div>
-          ))}
-        </div>
+        {/* Empty State */}
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          gap: '2rem', textAlign: 'center',
+          background: 'linear-gradient(135deg, rgba(163,35,142,0.06), rgba(255,213,79,0.03))',
+          border: '1px dashed rgba(163,35,142,0.2)',
+          borderRadius: '24px', padding: 'clamp(3rem, 8vw, 5rem) 2rem',
+        }}>
+          {/* Illustration */}
+          <div style={{ fontSize: '5rem', lineHeight: 1 }}>🌱</div>
 
-        {/* Charts Mockup */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div style={{ background: 'var(--color-card)', border: '1px solid rgba(108,99,255,0.15)', borderRadius: '16px', padding: '2rem', flex: 2, lgGridColumn: 'span 2' }} className="lg:col-span-2">
-            <h3 style={{ fontWeight: 700, marginBottom: '1.5rem' }}>Weekly Activity</h3>
-            <div style={{ height: '300px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '8px' }}>
-              {[60, 45, 80, 55, 90, 70, 100].map((height, i) => (
-                <div key={i} style={{ flex: 1, position: 'relative' }}>
-                  <div style={{ background: 'var(--color-primary)', opacity: 0.8, height: `${height}%`, borderRadius: '4px 4px 0 0', transition: 'height 0.5s ease' }}></div>
-                  <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--color-muted)', marginTop: '8px' }}>
-                    {['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.6rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+              Your journey starts here
+            </h2>
+            <p style={{ color: 'var(--color-muted)', fontSize: '1rem', lineHeight: 1.75, maxWidth: '440px', margin: '0 auto 2rem' }}>
+              You haven't completed any lessons yet. Start your first session with the AI Tutor and your progress will be tracked here automatically.
+            </p>
           </div>
-          <div style={{ background: 'var(--color-card)', border: '1px solid rgba(108,99,255,0.15)', borderRadius: '16px', padding: '2rem' }}>
-            <h3 style={{ fontWeight: 700, marginBottom: '1.5rem' }}>Recent Achievements</h3>
-            <div className="space-y-4">
-              {[
-                { icon: '🥉', title: 'Early Bird', desc: 'Study 5 days before 9 AM.' },
-                { icon: '🥈', title: 'Bookworm', desc: 'Finish 10 reading modules.' },
-                { icon: '🥇', title: 'Chatterbox', desc: '1 hour of AI conversation.' },
-                { icon: '🏆', title: 'Top 10%', desc: 'Climb to the Silver League.' },
-              ].map((achievement, i) => (
-                <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'center', paddingBottom: '1rem', borderBottom: i < 3 ? '1px solid rgba(108,99,255,0.1)' : 'none' }}>
-                   <div style={{ fontSize: '1.5rem' }}>{achievement.icon}</div>
-                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{achievement.title}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{achievement.desc}</div>
-                   </div>
-                </div>
-              ))}
-            </div>
+
+          {/* Stat boxes (empty/zero state) */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full" style={{ maxWidth: '600px' }}>
+            {[
+              { icon: '📝', label: 'Words Learned', value: '0' },
+              { icon: '📖', label: 'Lessons Done', value: '0' },
+              { icon: '🔥', label: 'Day Streak', value: '0' },
+              { icon: '⚡', label: 'XP Earned', value: '0' },
+            ].map(stat => (
+              <div key={stat.label} style={{
+                background: 'var(--color-card)', border: '1px solid rgba(163,35,142,0.1)',
+                borderRadius: '14px', padding: '1.25rem',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
+              }}>
+                <div style={{ fontSize: '1.75rem' }}>{stat.icon}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.5rem', color: 'var(--color-muted)' }}>{stat.value}</div>
+                <div style={{ color: 'var(--color-muted)', fontSize: '0.75rem' }}>{stat.label}</div>
+              </div>
+            ))}
           </div>
+
+          {/* CTAs */}
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Link to="/chat" style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: 'var(--color-primary)', color: '#fff',
+              padding: '12px 28px', borderRadius: '12px', fontWeight: 700,
+              textDecoration: 'none', fontSize: '0.95rem',
+              boxShadow: '0 8px 20px rgba(163,35,142,0.3)',
+              transition: 'opacity 0.2s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+            >
+              🤖 Start with AI Tutor
+            </Link>
+            <Link to="/lessons" style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: 'transparent', color: 'var(--color-primary)',
+              padding: '12px 28px', borderRadius: '12px', fontWeight: 700,
+              textDecoration: 'none', fontSize: '0.95rem',
+              border: '1px solid rgba(163,35,142,0.35)',
+              transition: 'all 0.2s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(163,35,142,0.1)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+            >
+              📚 Browse Lessons
+            </Link>
+          </div>
+
+          <p style={{ color: 'var(--color-muted)', fontSize: '0.8rem', marginTop: '0.5rem' }}>
+            Progress tracking with charts and achievements will unlock after your first lesson.
+          </p>
         </div>
       </div>
     </div>
