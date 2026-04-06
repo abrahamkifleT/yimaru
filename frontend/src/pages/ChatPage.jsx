@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import chatService from '../services/chatService'
+import useSpeechToText from '../hooks/useSpeechToText'
 
 // ─── Initial welcome message ─────────────────────────────────────────────────
 const WELCOME = {
@@ -111,7 +112,11 @@ export default function ChatPage() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  
+  // Speech-to-Text Integration
+  const [speechLang, setSpeechLang] = useState('en-US')
+  const { isListening, transcript, toggleListening, hasBrowserSupport, stopListening } = useSpeechToText({ lang: speechLang })
+  const baseInputRef = useRef('')
 
   const bottomRef = useRef(null)
   const textareaRef = useRef(null)
@@ -129,9 +134,27 @@ export default function ChatPage() {
     ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'
   }, [input])
 
+  // Track original text before dictation starts
+  useEffect(() => {
+    if (isListening) {
+      baseInputRef.current = input
+    }
+  }, [isListening])
+  
+  // Update text dynamically as user speaks
+  useEffect(() => {
+    if (isListening && transcript) {
+      const space = baseInputRef.current && !baseInputRef.current.endsWith(' ') ? ' ' : ''
+      setInput(baseInputRef.current + space + transcript)
+    }
+  }, [transcript, isListening])
+
   const sendMessage = useCallback(async (text) => {
     const trimmed = text.trim()
     if (!trimmed || isLoading) return
+
+    // Stop recording if active before sending
+    if (isListening) stopListening()
 
     const userMsg = { id: Date.now(), role: 'user', text: trimmed, time: now() }
     setMessages(prev => [...prev, userMsg])
@@ -155,7 +178,7 @@ export default function ChatPage() {
       // Re-focus input after response
       setTimeout(() => textareaRef.current?.focus(), 100)
     }
-  }, [messages, isLoading])
+  }, [messages, isLoading, isListening, stopListening])
 
   const handleSubmit = (e) => {
     e?.preventDefault()
@@ -187,6 +210,11 @@ export default function ChatPage() {
         @keyframes fadeSlideIn {
           from { opacity: 0; transform: translateY(8px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseMic {
+          0% { box-shadow: 0 0 0 0 rgba(252, 129, 129, 0.4); }
+          70% { box-shadow: 0 0 0 6px rgba(252, 129, 129, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(252, 129, 129, 0); }
         }
         .chat-scroll::-webkit-scrollbar { width: 5px; }
         .chat-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -324,7 +352,48 @@ export default function ChatPage() {
           </div>
 
           {/* Input area */}
-          <div style={{ padding: '1rem 1.25rem', background: 'var(--color-surface)', borderTop: '1px solid rgba(108,99,255,0.15)' }}>
+          <div style={{ padding: '0.75rem 1.25rem', background: 'var(--color-surface)', borderTop: '1px solid rgba(108,99,255,0.15)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            
+            {/* Dictation controls */}
+            {hasBrowserSupport && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  style={{
+                    background: isListening ? 'rgba(252,129,129,0.15)' : 'rgba(108,99,255,0.1)',
+                    border: '1px solid',
+                    borderColor: isListening ? 'rgba(252,129,129,0.4)' : 'rgba(108,99,255,0.22)',
+                    color: isListening ? '#FC8181' : 'var(--color-primary)',
+                    borderRadius: '8px', padding: '5px 12px', fontSize: '0.8rem', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'var(--font-sans)',
+                    animation: isListening ? 'pulseMic 1.5s infinite' : 'none'
+                  }}
+                >
+                  {isListening ? '🛑 Stop Recording' : '🎙️ Dictate'}
+                </button>
+                <select 
+                  value={speechLang} 
+                  onChange={e => setSpeechLang(e.target.value)}
+                  disabled={isListening}
+                  style={{
+                    background: 'rgba(108,99,255,0.05)',
+                    border: '1px solid rgba(108,99,255,0.2)',
+                    borderRadius: '6px',
+                    padding: '4px 8px',
+                    color: 'var(--color-text)',
+                    fontSize: '0.75rem',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    opacity: isListening ? 0.6 : 1,
+                  }}
+                >
+                  <option value="en-US">English</option>
+                  <option value="am-ET">Amharic (አማርኛ)</option>
+                </select>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} style={{
               display: 'flex', gap: '0.75rem', alignItems: 'flex-end',
               background: 'var(--color-card)',
@@ -342,12 +411,12 @@ export default function ChatPage() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Message Yimaru AI… (Enter to send, Shift+Enter for new line)"
+                placeholder={isListening ? 'Listening...' : 'Message Yimaru AI… (Enter to send, Shift+Enter for new line)'}
                 rows={1}
                 disabled={isLoading}
                 style={{
                   flex: 1, background: 'none', border: 'none', outline: 'none',
-                  color: isLoading ? 'var(--color-muted)' : 'var(--color-text)',
+                  color: isLoading || isListening ? 'var(--color-muted)' : 'var(--color-text)',
                   fontSize: '0.93rem', fontFamily: 'var(--font-sans)',
                   resize: 'none', lineHeight: 1.65, maxHeight: '160px',
                   scrollbarWidth: 'none', padding: 0,
@@ -367,7 +436,7 @@ export default function ChatPage() {
                 {isLoading ? '⏳' : '➤'}
               </button>
             </form>
-            <p style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.7rem', color: 'var(--color-muted)' }}>
+            <p style={{ textAlign: 'center', fontSize: '0.7rem', color: 'var(--color-muted)' }}>
               Yimaru AI can make mistakes. Always verify important language rules.
             </p>
           </div>
