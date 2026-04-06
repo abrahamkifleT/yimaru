@@ -23,10 +23,7 @@ const skills = [
   { skill: 'Writing',    value: 0 },
 ]
 
-const activity = [0, 0, 0, 0, 0, 0, 0]
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
-const achievements = []
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -38,6 +35,17 @@ export default function DashboardPage() {
   const streak = user?.streak || 0
   const avatar = user?.avatar || '👤'
   const name = user?.name || 'Student'
+
+  // Use user's real stats instead of hardcoded 0s
+  const userSkills = user?.skills || [
+    { skill: 'Speaking',   value: 0 },
+    { skill: 'Listening',  value: 0 },
+    { skill: 'Grammar',    value: 0 },
+    { skill: 'Vocabulary', value: 0 },
+    { skill: 'Writing',    value: 0 },
+  ]
+  const userActivity = user?.activity || [0, 0, 0, 0, 0, 0, 0]
+  const userAchievements = user?.achievements || []
 
   const xpPct = Math.round((xp / nextLevelXp) * 100)
 
@@ -103,13 +111,13 @@ export default function DashboardPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
             {/* Skills */}
-            <StatsWidget stats={skills} />
+            <StatsWidget stats={userSkills} />
 
             {/* Weekly Activity */}
             <Card hover={false}>
               <h3 style={{ fontWeight: 700, marginBottom: '1.25rem', fontSize: '1rem' }}>📅 Weekly Activity</h3>
               <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '6px', height: '100px' }}>
-                {activity.map((h, i) => (
+                {userActivity.map((h, i) => (
                   <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                     <div style={{ width: '100%', height: `${h}%`, background: i === 6 ? 'var(--color-primary)' : 'rgba(108,99,255,0.35)', borderRadius: '4px 4px 0 0', transition: 'height 0.5s ease' }} />
                     <span style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>{days[i]}</span>
@@ -121,10 +129,10 @@ export default function DashboardPage() {
             {/* Achievements */}
             <Card hover={false}>
               <h3 style={{ fontWeight: 700, marginBottom: '1.25rem', fontSize: '1rem' }}>🏅 Achievements</h3>
-              {achievements.length > 0 ? (
+              {userAchievements.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {achievements.map(({ icon, title, desc }, i) => (
-                    <div key={title} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', paddingBottom: '0.75rem', borderBottom: i < achievements.length - 1 ? '1px solid rgba(108,99,255,0.1)' : 'none' }}>
+                  {userAchievements.map(({ icon, title, desc }, i) => (
+                    <div key={title} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', paddingBottom: '0.75rem', borderBottom: i < userAchievements.length - 1 ? '1px solid rgba(108,99,255,0.1)' : 'none' }}>
                       <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>{icon}</span>
                       <div>
                         <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{title}</div>
