@@ -2,7 +2,10 @@ import { createContext, useContext, useState, useCallback } from 'react'
 
 const AuthContext = createContext(null)
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
+let API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
+if (API_URL.endsWith('/')) {
+  API_URL = API_URL.slice(0, -1)
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
