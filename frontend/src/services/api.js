@@ -1,9 +1,16 @@
 import axios from 'axios'
 
 // Base Axios instance
+// Base Axios instance
 const getBaseURL = () => {
   let url = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
-  return url.endsWith('/') ? url.slice(0, -1) : url
+  // Remove trailing slash
+  url = url.endsWith('/') ? url.slice(0, -1) : url
+  // Proactively append /api if missing (on Vercel urls usually miss it)
+  if (!url.endsWith('/api') && url.includes('vercel.app')) {
+    url = `${url}/api`
+  }
+  return url
 }
 
 const api = axios.create({

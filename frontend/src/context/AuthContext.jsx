@@ -3,8 +3,13 @@ import { createContext, useContext, useState, useCallback } from 'react'
 const AuthContext = createContext(null)
 
 let API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
+// 1. Remove trailing slash
 if (API_URL.endsWith('/')) {
   API_URL = API_URL.slice(0, -1)
+}
+// 2. Proactively append /api if missing (on Vercel urls usually miss it)
+if (!API_URL.endsWith('/api') && API_URL.includes('vercel.app')) {
+  API_URL = `${API_URL}/api`
 }
 
 export function AuthProvider({ children }) {
