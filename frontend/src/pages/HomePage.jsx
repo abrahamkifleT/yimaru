@@ -35,7 +35,7 @@ export default function HomePage() {
         <div style={{ position: 'absolute', bottom: '0', right: '-10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(255,213,79,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center" style={{ position: 'relative', zIndex: 1 }}>
-          
+
           {/* ────── Hero Text (Left) ────── */}
           <div style={{ maxWidth: '600px' }} className="text-center lg:text-left mx-auto lg:mx-0">
             <span style={{
@@ -84,10 +84,10 @@ export default function HomePage() {
 
           {/* ────── Hero Graphic (Right) ────── */}
           <div className="hidden lg:flex" style={{ position: 'relative', height: '540px', alignItems: 'center', justifyContent: 'center' }}>
-            
+
             {/* Background Decorative Element */}
             <div style={{ position: 'absolute', right: '0', width: '380px', height: '480px', background: 'linear-gradient(135deg, rgba(163,35,142,0.1), rgba(255,213,79,0.05))', borderRadius: '30px', transform: 'rotate(6deg)', border: '1px solid rgba(255,255,255,0.03)' }} />
-            
+
             {/* Main Chat Card (Glassmorphism) */}
             <div style={{
               position: 'absolute',
@@ -108,16 +108,16 @@ export default function HomePage() {
                 <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--color-secondary)' }} />
                 <span style={{ marginLeft: '10px', fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 600 }}>Yimaru Tutor</span>
               </div>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div style={{ background: 'rgba(255,255,255,0.04)', padding: '12px 16px', borderRadius: '4px 16px 16px 16px', fontSize: '0.85rem', width: '85%' }}>
-                   Hi there! 👋 How is your English practice going today?
+                  Hi there! 👋 How is your English practice going today?
                 </div>
                 <div style={{ background: 'var(--color-primary)', padding: '12px 16px', borderRadius: '16px 4px 16px 16px', fontSize: '0.85rem', width: '80%', alignSelf: 'flex-end', color: '#fff', boxShadow: '0 8px 20px rgba(163,35,142,0.3)' }}>
-                   I want to learn how to order coffee in English!
+                  I want to learn how to order coffee in English!
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.04)', padding: '12px 16px', borderRadius: '4px 16px 16px 16px', fontSize: '0.85rem', width: '90%' }}>
-                   Perfect. You can say: "I would like a large cappuccino, please." Try saying it out loud! 🎙️
+                  Perfect. You can say: "I would like a large cappuccino, please." Try saying it out loud! 🎙️
                 </div>
               </div>
             </div>
@@ -144,7 +144,7 @@ export default function HomePage() {
                 I go to market yesterday.
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--color-secondary)', fontWeight: 600 }}>
-                I <strong style={{color: '#fff'}}>went</strong> to <strong style={{color: '#fff'}}>the</strong> market yesterday.
+                I <strong style={{ color: '#fff' }}>went</strong> to <strong style={{ color: '#fff' }}>the</strong> market yesterday.
               </div>
             </div>
 
