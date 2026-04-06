@@ -1,8 +1,14 @@
 import OpenAI from 'openai'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// ✅ Lazy-initialized so process.env is guaranteed to be loaded
+// (dotenv/config is imported first in app.js)
+let openai = null
+function getOpenAI() {
+  if (!openai) {
+    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  }
+  return openai
+}
 
 const SYSTEM_PROMPT = `You are Yimaru AI, an expert English language tutor. Your goal is to help learners improve their English through friendly, encouraging, and educational conversations.
 
@@ -20,6 +26,7 @@ Rules:
 - Use emojis occasionally to keep the mood light
 - If asked something unrelated to English learning, gently redirect the conversation`
 
+// ── Send a chat message ──────────────────────────────────
 export const sendMessage = async (req, res, next) => {
   try {
     const { message, history = [] } = req.body
@@ -28,10 +35,8 @@ export const sendMessage = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'A non-empty message is required.' })
     }
 
-    // Build messages array for OpenAI
     const messages = [
       { role: 'system', content: SYSTEM_PROMPT },
-      // Include up to last 20 messages for context
       ...history.slice(-20).map(m => ({
         role: m.role === 'assistant' ? 'assistant' : 'user',
         content: m.content || m.text,
@@ -39,8 +44,8 @@ export const sendMessage = async (req, res, next) => {
       { role: 'user', content: message.trim() },
     ]
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',       // Fast + cost-effective; swap to 'gpt-4o' for higher quality
+    const completion = await getOpenAI().chat.completions.create({
+      model: 'gpt-4o-mini',
       messages,
       max_tokens: 600,
       temperature: 0.7,
@@ -48,19 +53,15 @@ export const sendMessage = async (req, res, next) => {
 
     const reply = completion.choices[0]?.message?.content?.trim()
 
-    if (!reply) {
-      throw new Error('Empty response from OpenAI.')
-    }
+    if (!reply) throw new Error('Empty response from OpenAI.')
 
-    res.json({
-      success: true,
-      reply,
-      usage: completion.usage,    // Useful for monitoring token costs
-    })
+    res.json({ success: true, reply, usage: completion.usage })
   } catch (err) {
-    // Pass through OpenAI-specific error messages
     if (err.status === 401) {
-      return res.status(401).json({ success: false, message: 'Invalid OpenAI API key. Please check your OPENAI_API_KEY in backend/.env' })
+      return res.status(401).json({ 
+        success: false, 
+        message: '❌ Invalid OpenAI API key. Open backend/.env and replace OPENAI_API_KEY with your real key from https://platform.openai.com/api-keys' 
+      })
     }
     if (err.status === 429) {
       return res.status(429).json({ success: false, message: 'OpenAI rate limit reached. Please try again in a moment.' })
@@ -69,9 +70,47 @@ export const sendMessage = async (req, res, next) => {
   }
 }
 
+// ── Text-to-Speech ────────────────────────────────────────
+export const textToSpeech = async (req, res, next) => {
+  try {
+    const { text, voice = 'alloy' } = req.body
+    // Supported voices: alloy, echo, fable, onyx, nova, shimmer
+
+    if (!text || typeof text !== 'string' || !text.trim()) {
+      return res.status(400).json({ success: false, message: 'Text is required for speech synthesis.' })
+    }
+
+    // Truncate to keep costs low (OpenAI TTS max is 4096 chars)
+    const safeText = text.trim().slice(0, 500)
+
+    const mp3Response = await getOpenAI().audio.speech.create({
+      model: 'tts-1',           // tts-1 (fast) or tts-1-hd (higher quality)
+      voice,
+      input: safeText,
+      response_format: 'mp3',
+      speed: 0.95,              // Slightly slower for learners
+    })
+
+    const audioBuffer = Buffer.from(await mp3Response.arrayBuffer())
+
+    res.set({
+      'Content-Type': 'audio/mpeg',
+      'Content-Length': audioBuffer.length,
+      'Cache-Control': 'no-cache',
+    })
+    res.send(audioBuffer)
+  } catch (err) {
+    if (err.status === 401) {
+      return res.status(401).json({ success: false, message: 'Invalid OpenAI API key for TTS.' })
+    }
+    next(err)
+  }
+}
+
+// ── Get history ───────────────────────────────────────────
 export const getHistory = async (req, res, next) => {
   try {
-    // TODO: Fetch from database using req.user.id
+    // TODO: fetch from DB using req.user.id
     res.json({ success: true, history: [] })
   } catch (err) {
     next(err)

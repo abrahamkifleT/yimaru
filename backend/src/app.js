@@ -1,10 +1,11 @@
+// ⚠️ IMPORTANT: 'dotenv/config' MUST be the first import in ESM projects.
+// It ensures process.env is populated before any other module reads it.
+import 'dotenv/config'
+
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import chatRoutes from './routes/chatRoutes.js'
 import authRoutes from './routes/authRoutes.js'
-
-dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -22,7 +23,11 @@ app.use('/api/chat', chatRoutes)
 
 // ── Health check ────────────────────────────────────────
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Yimaru API is running 🚀' })
+  res.json({ 
+    status: 'ok', 
+    message: 'Yimaru API is running 🚀',
+    openai: process.env.OPENAI_API_KEY?.startsWith('sk-') ? '✅ Key loaded' : '❌ Key missing'
+  })
 })
 
 // ── 404 handler ─────────────────────────────────────────
@@ -38,7 +43,8 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`\n🌐 Yimaru Backend running on http://localhost:${PORT}`)
-  console.log(`📡 Health check: http://localhost:${PORT}/api/health\n`)
+  console.log(`📡 Health check: http://localhost:${PORT}/api/health`)
+  console.log(`🔑 OpenAI key: ${process.env.OPENAI_API_KEY?.startsWith('sk-') ? '✅ Loaded' : '❌ MISSING — add to backend/.env'}\n`)
 })
 
 export default app

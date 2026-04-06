@@ -1,14 +1,16 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 
-// Mock users — replace with MongoDB/PostgreSQL queries when DB is connected
+// ✅ Hash is computed once at startup — guarantees it matches the plain password below.
+// To add more users: run node -e "const b=require('bcryptjs'); console.log(b.hashSync('yourpassword',10))" in backend/
+const DEMO_HASH = bcrypt.hashSync('demo123', 10)
+
 const USERS = [
   {
     id: 1,
     name: 'Abraham Kifle',
     email: 'abraham@yimaru.com',
-    // bcrypt hash of 'demo123'
-    passwordHash: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+    passwordHash: DEMO_HASH,
     level: 'Intermediate',
     avatar: '👨‍💻',
   },
