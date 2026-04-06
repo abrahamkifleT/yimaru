@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import chatService from '../services/chatService'
 import useSpeechToText from '../hooks/useSpeechToText'
+import useTextToSpeech from '../services/useTextToSpeech'
 
 // ─── Initial welcome message ─────────────────────────────────────────────────
 const WELCOME = {
@@ -42,17 +43,22 @@ function Avatar({ role }) {
       width: '34px', height: '34px', borderRadius: '50%', flexShrink: 0,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       fontSize: '1rem', fontWeight: 700,
-      background: role === 'user'
-        ? 'linear-gradient(135deg, #48BB78, #38A169)'
-        : 'linear-gradient(135deg, var(--color-primary), #A78BFA)',
+      background: role === 'user' ? 'linear-gradient(135deg, #48BB78, #38A169)' : 'transparent',
+      overflow: 'hidden'
     }}>
-      {role === 'user' ? '👤' : '🤖'}
+      {role === 'user' 
+        ? '👤' 
+        : <img src="/logo.png" alt="Yimaru AI" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+      }
     </div>
   )
 }
 
-function MessageBubble({ msg }) {
+function MessageBubble({ msg, tts }) {
   const isUser = msg.role === 'user'
+  const isPlaying = tts?.playingId === msg.id
+  const isLoadingTTS = tts?.loading === msg.id
+
   return (
     <div style={{
       display: 'flex',
@@ -76,7 +82,29 @@ function MessageBubble({ msg }) {
         }}>
           {renderText(msg.text)}
         </div>
-        <span style={{ fontSize: '0.68rem', color: 'var(--color-muted)', padding: '0 4px' }}>{msg.time}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0 4px' }}>
+          <span style={{ fontSize: '0.68rem', color: 'var(--color-muted)' }}>{msg.time}</span>
+          {/* TTS play button — only on AI messages */}
+          {!isUser && tts && (
+            <button
+              onClick={() => tts.toggle(msg.text, msg.id)}
+              title={isPlaying ? 'Stop' : 'Listen'}
+              style={{
+                background: isPlaying ? 'rgba(108,99,255,0.2)' : 'none',
+                border: '1px solid rgba(108,99,255,0.2)',
+                borderRadius: '6px',
+                padding: '2px 7px',
+                cursor: 'pointer',
+                fontSize: '0.75rem',
+                color: 'var(--color-primary)',
+                transition: 'all 0.15s',
+                lineHeight: 1.6,
+              }}
+            >
+              {isLoadingTTS ? '⏳' : isPlaying ? '⏹ Stop' : '🔊 Listen'}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -112,6 +140,9 @@ export default function ChatPage() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+
+  // Text-to-Speech
+  const tts = useTextToSpeech()
   
   // Speech-to-Text Integration
   const [speechLang, setSpeechLang] = useState('en-US')
@@ -236,7 +267,9 @@ export default function ChatPage() {
           {/* Sidebar header */}
           <div style={{ padding: '1.25rem', borderBottom: '1px solid rgba(108,99,255,0.12)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--color-primary), #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>🤖</div>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
+                <img src="/logo.png" alt="Yimaru" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
               <div>
                 <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Yimaru AI</div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--color-secondary)' }}>● GPT-4o-mini</div>
@@ -301,7 +334,9 @@ export default function ChatPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--color-primary), #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>🤖</div>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
+                <img src="/logo.png" alt="Yimaru" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
               <div>
                 <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Yimaru AI Tutor</div>
                 <div style={{ fontSize: '0.75rem', color: isLoading ? 'var(--color-accent)' : 'var(--color-secondary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -321,7 +356,7 @@ export default function ChatPage() {
 
           {/* Messages area */}
           <div className="chat-scroll" style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            {messages.map(msg => <MessageBubble key={msg.id} msg={msg} />)}
+            {messages.map(msg => <MessageBubble key={msg.id} msg={msg} tts={tts} />)}
             {isLoading && <TypingDots />}
 
             {/* Error banner */}

@@ -1,48 +1,53 @@
-import axios from 'axios';
+import axios from 'axios'
 
-// Base configuration for Axios
+// Base Axios instance
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+  timeout: 15000,
+  headers: { 'Content-Type': 'application/json' },
+})
 
-// Request interceptor for adding the auth token
+// ── Request: attach JWT ──────────────────────────────────
 api.interceptors.request.use(
   (config) => {
-    const userData = sessionStorage.getItem('yimaru_user');
+    const userData = sessionStorage.getItem('yimaru_user')
     if (userData) {
       try {
-        const { token } = JSON.parse(userData);
+        const { token } = JSON.parse(userData)
         if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+          config.headers.Authorization = `Bearer ${token}`
         }
-      } catch (err) {
-        console.error('Error parsing token from session storage', err);
+      } catch {
+        // Corrupted session — clear it
+        sessionStorage.removeItem('yimaru_user')
       }
     }
-    return config;
+    return config
   },
   (error) => Promise.reject(error)
-);
+)
 
-// Response interceptor for global error handling
+// ── Response: handle errors globally ────────────────────
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle specific status codes
-    if (error.response?.status === 401) {
-      // Potentially trigger a logout or redirect to login
-      console.warn('Unauthorized! Redirecting...');
-      // window.location.href = '/login'; 
-    }
-    
-    // Customize error object for easier consumption in components
-    const message = error.response?.data?.message || error.message || 'An unexpected error occurred';
-    return Promise.reject({ ...error, message });
-  }
-);
+    const status = error.response?.status
 
-export default api;
+    if (status === 401) {
+      // Token is missing or expired — clear session and go to login
+      sessionStorage.removeItem('yimaru_user')
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login'
+      }
+    }
+
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      'An unexpected error occurred'
+
+    return Promise.reject({ ...error, message })
+  }
+)
+
+export default api
