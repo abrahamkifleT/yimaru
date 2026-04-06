@@ -19,8 +19,12 @@
       "destination": "/backend/src/app.js"
     },
     {
+      "source": "/(?<path>.*\\.[a-zA-Z0-9]+)$",
+      "destination": "/frontend/$path"
+    },
+    {
       "source": "/(.*)",
-      "destination": "/frontend/$1"
+      "destination": "/frontend/index.html"
     }
   ]
 }
