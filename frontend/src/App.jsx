@@ -7,6 +7,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute'
 // Pages
 import HomePage       from './pages/HomePage'
 import LoginPage      from './pages/LoginPage'
+import SignupPage     from './pages/SignupPage'
 import DashboardPage  from './pages/DashboardPage'
 import ChatPage       from './pages/ChatPage'
 import LessonsPage    from './pages/LessonsPage'
@@ -24,6 +25,7 @@ function App() {
             {/* ── Public routes ── */}
             <Route path="/"        element={<HomePage />} />
             <Route path="/login"   element={<LoginPage />} />
+            <Route path="/signup"  element={<SignupPage />} />
             <Route path="/lessons" element={<LessonsPage />} />
             <Route path="/practice" element={<PracticePage />} />
 

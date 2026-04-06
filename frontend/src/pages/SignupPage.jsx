@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const FEATURES = [
@@ -9,14 +9,13 @@ const FEATURES = [
   { icon: '🏆', text: 'Gamified XP and streak system' },
 ]
 
-export default function LoginPage() {
-  const { login } = useAuth()
+export default function SignupPage() {
+  const { signup } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
-  const from = location.state?.from?.pathname || '/dashboard'
 
-  const [email, setEmail]       = useState('abraham@yimaru.com')
-  const [password, setPassword] = useState('demo123')
+  const [name, setName]         = useState('')
+  const [email, setEmail]       = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
 
@@ -25,8 +24,8 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      await login(email, password)
-      navigate(from, { replace: true })
+      await signup(name, email, password)
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -71,9 +70,9 @@ export default function LoginPage() {
         </Link>
 
         <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '2.4rem', lineHeight: 1.2, marginBottom: '1.5rem', color: '#fff' }}>
-          Speak English<br />
+          Start learning<br />
           <span style={{ background: 'linear-gradient(90deg, var(--color-primary), var(--color-accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            with confidence.
+            today.
           </span>
         </h2>
 
@@ -116,10 +115,10 @@ export default function LoginPage() {
           {/* Headings */}
           <div style={{ marginBottom: '2rem' }}>
             <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.8rem', marginBottom: '0.4rem' }}>
-              Welcome back 👋
+              Create an account ✨
             </h1>
             <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem' }}>
-              Sign in to continue your learning journey
+              Sign up to start your learning journey
             </p>
           </div>
 
@@ -131,18 +130,19 @@ export default function LoginPage() {
             boxShadow: '0 24px 60px rgba(0,0,0,0.3)',
           }}>
 
-            {/* Demo hint */}
-            <div style={{
-              background: 'rgba(72,187,120,0.08)', border: '1px solid rgba(72,187,120,0.2)',
-              borderRadius: '10px', padding: '10px 14px', marginBottom: '1.5rem',
-              fontSize: '0.82rem', color: 'var(--color-secondary)',
-              display: 'flex', alignItems: 'center', gap: '8px',
-            }}>
-              <span>🧪</span>
-              <span><strong>Demo credentials pre-filled</strong> — just click Sign In.</span>
-            </div>
-
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px' }}>
+                  Full Name
+                </label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} required
+                  style={inputBase}
+                  onFocus={e => e.target.style.borderColor = 'var(--color-primary)'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(163,35,142,0.2)'}
+                  placeholder="John Doe"
+                />
+              </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px' }}>
@@ -152,6 +152,7 @@ export default function LoginPage() {
                   style={inputBase}
                   onFocus={e => e.target.style.borderColor = 'var(--color-primary)'}
                   onBlur={e => e.target.style.borderColor = 'rgba(163,35,142,0.2)'}
+                  placeholder="you@example.com"
                 />
               </div>
 
@@ -163,6 +164,7 @@ export default function LoginPage() {
                   style={inputBase}
                   onFocus={e => e.target.style.borderColor = 'var(--color-primary)'}
                   onBlur={e => e.target.style.borderColor = 'rgba(163,35,142,0.2)'}
+                  placeholder="••••••••"
                 />
               </div>
 
@@ -189,14 +191,14 @@ export default function LoginPage() {
                 onMouseEnter={e => { if (!loading) e.currentTarget.style.opacity = '0.88' }}
                 onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
               >
-                {loading ? '⏳ Signing in…' : '🚀 Sign In'}
+                {loading ? '⏳ Signing up…' : '🚀 Sign Up'}
               </button>
             </form>
 
             <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--color-muted)', fontSize: '0.875rem' }}>
-              Don't have an account?{' '}
-              <Link to="/signup" style={{ color: 'var(--color-primary)', fontWeight: 700, textDecoration: 'none' }}>
-                Start for free
+              Already have an account?{' '}
+              <Link to="/login" style={{ color: 'var(--color-primary)', fontWeight: 700, textDecoration: 'none' }}>
+                Sign In
               </Link>
             </p>
           </div>

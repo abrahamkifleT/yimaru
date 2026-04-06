@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import chatService from '../services/chatService'
 import useSpeechToText from '../hooks/useSpeechToText'
 import useTextToSpeech from '../services/useTextToSpeech'
+import { useAuth } from '../context/AuthContext'
 
 // ─── Initial welcome message ─────────────────────────────────────────────────
 const WELCOME = {
@@ -137,6 +138,7 @@ function TypingDots() {
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function ChatPage() {
+  const { updateProgress } = useAuth()
   const location = useLocation()
   const [messages, setMessages] = useState([WELCOME])
   const [input, setInput] = useState('')
@@ -219,6 +221,11 @@ export default function ChatPage() {
         text: data.reply,
         time: now(),
       }])
+      
+      // Reward the user 10 XP for practicing English!
+      if (updateProgress) {
+        updateProgress(10)
+      }
     } catch (err) {
       setError(err.message || 'Failed to reach the AI. Please check your connection.')
     } finally {
@@ -226,7 +233,7 @@ export default function ChatPage() {
       // Re-focus input after response
       setTimeout(() => textareaRef.current?.focus(), 100)
     }
-  }, [messages, isLoading, isListening, stopListening])
+  }, [messages, isLoading, isListening, stopListening, updateProgress])
 
   const handleSubmit = (e) => {
     e?.preventDefault()

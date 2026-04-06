@@ -34,13 +34,53 @@ export function AuthProvider({ children }) {
     return payload
   }, [])
 
+  const signup = useCallback(async (name, email, password) => {
+    const res = await fetch(`${API_URL}/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password }),
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      throw new Error(data.message || 'Signup failed.')
+    }
+
+    const payload = { ...data.user, token: data.token }
+    sessionStorage.setItem('yimaru_user', JSON.stringify(payload))
+    setUser(payload)
+    return payload
+  }, [])
+
+  const updateProgress = useCallback(async (xpGained) => {
+    if (!user) return
+
+    const res = await fetch(`${API_URL}/auth/progress`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${user.token}`
+      },
+      body: JSON.stringify({ xpGained }),
+    })
+
+    if (res.ok) {
+      const data = await res.json()
+      const payload = { ...data.user, token: user.token }
+      sessionStorage.setItem('yimaru_user', JSON.stringify(payload))
+      setUser(payload)
+      return payload
+    }
+  }, [user])
+
   const logout = useCallback(() => {
     sessionStorage.removeItem('yimaru_user')
     setUser(null)
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, signup, updateProgress, logout }}>
       {children}
     </AuthContext.Provider>
   )
