@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
+import chatService from '../services/chatService'
 
 const INITIAL_MESSAGES = [
   {
@@ -16,14 +17,6 @@ const QUICK_PROMPTS = [
   '📝 Check my grammar',
   '📖 Teach me a new word',
   '🔊 Help with pronunciation',
-]
-
-const MOCK_RESPONSES = [
-  "Great question! Let's practice a real-life conversation. Imagine you're at a job interview. How would you introduce yourself?\n\nTry starting with: \"Hello, my name is...\"",
-  "Sure! Share a sentence and I'll check it for grammar errors and suggest improvements. I'll also explain the rule so you understand why.",
-  "Today's word: **Eloquent** (adjective)\n\n**Meaning:** Fluent and persuasive in speaking.\n**Example:** *She gave an eloquent speech that moved the audience.*\n\nCan you use it in your own sentence?",
-  "For clear pronunciation, focus on syllable stress. For example, the word **'beautiful'** is stressed on the first syllable: **BEA**-u-ti-ful.\n\nWould you like tips for a specific word?",
-  "That's a great effort! Here's a small correction:\n\n❌ *I am go to the market.*\n✅ *I am going to the market.*\n\nThe verb after 'am/is/are' should be in **-ing** form (present continuous). Keep it up!",
 ]
 
 function Message({ msg }) {
@@ -81,6 +74,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState(INITIAL_MESSAGES)
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
+  const [error, setError] = useState(null)
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
 
@@ -88,22 +82,42 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, typing])
 
-  const sendMessage = (text) => {
-    const userMsg = { id: Date.now(), role: 'user', text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+  const sendMessage = async (text) => {
+    const userMsg = { 
+      id: Date.now(), 
+      role: 'user', 
+      text, 
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+    }
+    
     setMessages(prev => [...prev, userMsg])
     setInput('')
+    setError(null)
     setTyping(true)
 
-    setTimeout(() => {
-      const reply = MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)]
+    try {
+      // Create conversation history context for the AI
+      const history = messages.slice(-10).map(m => ({ role: m.role, content: m.text }));
+      
+      const data = await chatService.sendMessage(text, history);
+      
+      setMessages(prev => [...prev, { 
+        id: Date.now() + 1, 
+        role: 'assistant', 
+        text: data.reply, 
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+      }]);
+    } catch (err) {
+      setError(err.message || 'Failed to connect to the AI tutor. Please check your connection.');
+      console.error('Chat Error:', err);
+    } finally {
       setTyping(false)
-      setMessages(prev => [...prev, { id: Date.now() + 1, role: 'assistant', text: reply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])
-    }, 1400 + Math.random() * 600)
+    }
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!input.trim()) return
+    if (!input.trim() || typing) return
     sendMessage(input.trim())
   }
 
@@ -178,6 +192,35 @@ export default function ChatPage() {
           <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', scrollbarWidth: 'thin', scrollbarColor: 'rgba(108,99,255,0.3) transparent' }}>
             {messages.map(msg => <Message key={msg.id} msg={msg} />)}
             {typing && <TypingIndicator />}
+            
+            {error && (
+              <div style={{ 
+                margin: '1rem 0',
+                padding: '1rem',
+                background: 'rgba(252,129,129,0.1)',
+                border: '1px solid rgba(252,129,129,0.2)',
+                borderRadius: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.75rem'
+              }}>
+                <p style={{ color: '#FC8181', fontSize: '0.9rem', margin: 0, textAlign: 'center' }}>
+                  ⚠️ {error}
+                </p>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  style={{ borderColor: 'rgba(252,129,129,0.5)', color: '#FC8181' }}
+                  onClick={() => {
+                    const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+                    if (lastUserMsg) sendMessage(lastUserMsg.text);
+                  }}
+                >
+                  🔄 Retry last message
+                </Button>
+              </div>
+            )}
             <div ref={bottomRef} />
           </div>
 

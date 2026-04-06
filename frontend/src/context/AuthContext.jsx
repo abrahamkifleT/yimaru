@@ -2,14 +2,10 @@ import { createContext, useContext, useState, useCallback } from 'react'
 
 const AuthContext = createContext(null)
 
-// Mock user database — swap for a real API call later
-const MOCK_USERS = [
-  { id: 1, name: 'Abraham Kifle', email: 'abraham@yimaru.com', level: 'Intermediate', avatar: '👨‍💻' },
-]
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    // Persist login across page refreshes via sessionStorage
     try {
       const stored = sessionStorage.getItem('yimaru_user')
       return stored ? JSON.parse(stored) : null
@@ -19,16 +15,23 @@ export function AuthProvider({ children }) {
   })
 
   const login = useCallback(async (email, password) => {
-    // Simulate network delay
-    await new Promise(res => setTimeout(res, 800))
+    const res = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
 
-    const found = MOCK_USERS.find(u => u.email === email)
-    if (!found || password.length < 3) {
-      throw new Error('Invalid email or password.')
+    const data = await res.json()
+
+    if (!res.ok) {
+      throw new Error(data.message || 'Login failed.')
     }
-    sessionStorage.setItem('yimaru_user', JSON.stringify(found))
-    setUser(found)
-    return found
+
+    // Persist both user info and JWT token
+    const payload = { ...data.user, token: data.token }
+    sessionStorage.setItem('yimaru_user', JSON.stringify(payload))
+    setUser(payload)
+    return payload
   }, [])
 
   const logout = useCallback(() => {
@@ -48,3 +51,4 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>')
   return ctx
 }
+

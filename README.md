@@ -1,16 +1,63 @@
-# React + Vite
+# Yimaru — AI-Powered English Learning Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A monorepo containing the **frontend** (React + Vite) and **backend** (Node.js + Express) for the Yimaru platform.
 
-Currently, two official plugins are available:
+## 📂 Project Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```
+yimaru/
+├── frontend/          ← React + Vite + Tailwind CSS
+│   ├── src/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── pages/
+│   │   └── services/
+│   └── package.json
+│
+└── backend/           ← Node.js + Express REST API
+    ├── src/
+    │   ├── controllers/
+    │   ├── middleware/
+    │   └── routes/
+    └── package.json
+```
 
-## React Compiler
+## 🚀 Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. Start the Backend
+```bash
+cd backend
+npm install
+npm run dev
+# → Runs on http://localhost:5000
+```
 
-## Expanding the ESLint configuration
+### 2. Start the Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+# → Runs on http://localhost:5173
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🔌 API Endpoints
+
+| Method | Endpoint             | Auth     | Description              |
+|--------|----------------------|----------|--------------------------|
+| POST   | /api/auth/login      | Public   | Login, returns JWT token |
+| GET    | /api/auth/me         | 🔒 JWT   | Get current user info    |
+| POST   | /api/chat            | 🔒 JWT   | Send AI tutor message    |
+| GET    | /api/chat/history    | 🔒 JWT   | Fetch chat history       |
+| GET    | /api/health          | Public   | Server health check      |
+
+## 🏗️ Tech Stack
+
+| Layer     | Technology            |
+|-----------|-----------------------|
+| Frontend  | React 19, Vite, Tailwind CSS, React Router |
+| Backend   | Node.js, Express, JWT, bcrypt |
+| Auth      | JWT Bearer tokens (7d expiry) |
+
+## 🔑 Demo Credentials
+- **Email:** `abraham@yimaru.com`
+- **Password:** `demo123`
