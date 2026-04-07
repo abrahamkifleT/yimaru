@@ -11,14 +11,14 @@ export default function Button({ children, variant = 'primary', size = 'md', sty
     xs: { padding: '5px 12px', fontSize: '0.78rem', borderRadius: '8px' },
     sm: { padding: '8px 18px', fontSize: '0.875rem' },
     md: { padding: '12px 26px', fontSize: '0.95rem' },
-    lg: { padding: '15px 38px', fontSize: '1.05rem' },
+    lg: { padding: 'clamp(12px, 3vw, 15px) clamp(24px, 5vw, 38px)', fontSize: 'clamp(0.95rem, 3vw, 1.05rem)' },
   }
 
   const base = {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
     fontWeight: 700, borderRadius: '10px', cursor: 'pointer', border: 'none',
     textDecoration: 'none', transition: 'all 0.2s ease', fontFamily: 'var(--font-sans)',
-    whiteSpace: 'nowrap',
+    textAlign: 'center',
     ...sizes[size], ...variants[variant], ...extra,
   }
 

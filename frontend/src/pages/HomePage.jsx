@@ -226,9 +226,11 @@ export default function HomePage() {
           <p style={{ color: 'var(--color-muted)', marginBottom: '2rem', fontSize: '1.05rem' }}>
             Join 50,000+ learners already transforming their English with Yimaru AI.
           </p>
-          <Button as={Link} to="/chat" size="lg">
-            🚀 Start for Free — No Credit Card
-          </Button>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Button as={Link} to="/chat" size="lg" className="w-full sm:w-auto">
+              🚀 Start for Free — No Credit Card
+            </Button>
+          </div>
         </div>
       </section>
     </div>
