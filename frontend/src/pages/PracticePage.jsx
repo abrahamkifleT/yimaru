@@ -47,7 +47,7 @@ export default function PracticePage() {
   }
 
   return (
-    <div style={{ padding: '4rem 1.5rem', minHeight: '80vh', position: 'relative' }}>
+    <div className="section" style={{ minHeight: '80vh', position: 'relative' }}>
 
       {/* Toast notification */}
       {toast && (
@@ -57,15 +57,16 @@ export default function PracticePage() {
           borderRadius: '12px', padding: '12px 24px', fontSize: '0.9rem', fontWeight: 600,
           boxShadow: '0 12px 30px rgba(0,0,0,0.4)', zIndex: 999, color: 'var(--color-text)',
           animation: 'fadeSlideIn 0.2s ease',
+          width: 'calc(100% - 3rem)', maxWidth: '400px', textAlign: 'center'
         }}>
           🚧 <strong>{toast}</strong> is coming soon. Stay tuned!
         </div>
       )}
 
-      <div className="max-w-5xl mx-auto">
+      <div className="container">
         {/* Header */}
-        <div className="text-center" style={{ marginBottom: '3rem' }}>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700, marginBottom: '0.75rem' }}>
+        <div className="text-center" style={{ marginBottom: 'clamp(2rem, 8vw, 3.5rem)' }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.1rem, 5vw, 2.7rem)', fontWeight: 700, marginBottom: '0.75rem' }}>
             🎯 Practice
           </h1>
           <p style={{ color: 'var(--color-muted)', maxWidth: '480px', margin: '0 auto' }}>
@@ -74,59 +75,60 @@ export default function PracticePage() {
         </div>
 
         {/* Practice Module Cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {modules.map((mod) => (
             <div key={mod.id} style={{
               background: 'var(--color-card)',
-              border: `1px solid ${mod.available ? mod.color + '33' : 'rgba(255,255,255,0.05)'}`,
-              borderRadius: '18px', padding: '2rem',
-              display: 'flex', alignItems: 'center', gap: '1.75rem',
-              transition: 'all 0.2s', opacity: mod.available ? 1 : 0.72,
+              border: `1.5px solid ${mod.available ? mod.color + '33' : 'rgba(255,255,255,0.05)'}`,
+              borderRadius: '20px', padding: '1.5rem sm:2rem',
+              transition: 'all 0.2s', opacity: mod.available ? 1 : 0.75,
               cursor: mod.available ? 'pointer' : 'default',
             }}
+              className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 animate-in"
               onMouseEnter={e => { if (mod.available) { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.3)' } }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
               onClick={() => handleStart(mod)}
             >
               {/* Icon */}
               <div style={{
-                width: '72px', height: '72px', borderRadius: '18px', flexShrink: 0,
+                width: '80px', height: '80px', borderRadius: '20px', flexShrink: 0,
                 background: mod.color + '18', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', fontSize: '2.2rem',
-                border: `1px solid ${mod.color}30`,
+                justifyContent: 'center', fontSize: '2.4rem',
+                border: `1.5px solid ${mod.color}30`,
               }}>
                 {mod.icon}
               </div>
 
-              {/* Text */}
+              {/* Text Content */}
               <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
-                  <h3 style={{ fontWeight: 700, fontSize: '1.15rem' }}>{mod.title}</h3>
+                <div style={{ display: 'flex', flexDirection: 'column-reverse sm:row', alignItems: 'center sm:center', gap: '0.5rem', marginBottom: '0.6rem' }} className="sm:flex-row">
+                  <h3 style={{ fontWeight: 800, fontSize: '1.2rem', margin: 0 }}>{mod.title}</h3>
                   <span style={{
-                    fontSize: '0.7rem', fontWeight: 700, padding: '2px 10px', borderRadius: '100px',
+                    fontSize: '0.68rem', fontWeight: 800, padding: '3px 12px', borderRadius: '100px',
                     background: mod.available ? mod.color + '22' : 'rgba(255,255,255,0.06)',
                     color: mod.available ? mod.color : 'var(--color-muted)',
                     border: `1px solid ${mod.available ? mod.color + '44' : 'rgba(255,255,255,0.1)'}`,
+                    textTransform: 'uppercase', letterSpacing: '0.04em'
                   }}>
                     {mod.tag}
                   </span>
                 </div>
-                <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem', lineHeight: 1.65 }}>{mod.desc}</p>
+                <p style={{ color: 'var(--color-muted)', fontSize: '0.93rem', lineHeight: 1.65, marginBottom: 0 }}>{mod.desc}</p>
               </div>
 
               {/* CTA Button */}
-              <div style={{ flexShrink: 0 }}>
+              <div style={{ flexShrink: 0, width: '100%', sm: 'auto' }}>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleStart(mod) }}
                   style={{
-                    padding: '10px 22px', borderRadius: '10px', fontWeight: 700, fontSize: '0.9rem',
+                    width: '100%', sm: 'auto', padding: '11px 26px', borderRadius: '12px', fontWeight: 700, fontSize: '0.92rem',
                     cursor: 'pointer', transition: 'all 0.18s', fontFamily: 'var(--font-sans)',
-                    background: mod.available ? mod.color : 'rgba(255,255,255,0.06)',
-                    color: mod.available ? '#fff' : 'var(--color-muted)',
-                    border: mod.available ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                    background: mod.available ? mod.color : 'rgba(255,255,255,0.08)',
+                    color: mod.available ? '#fff' : 'rgba(255,255,255,0.4)',
+                    border: 'none',
                   }}
                 >
-                  {mod.available ? '▶ Start' : '🔒 Locked'}
+                  {mod.available ? '▶ Start Now' : '🔒 Locked'}
                 </button>
               </div>
             </div>
