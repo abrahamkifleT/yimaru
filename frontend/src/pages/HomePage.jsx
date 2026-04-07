@@ -37,18 +37,18 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center" style={{ position: 'relative', zIndex: 1 }}>
 
           {/* ────── Hero Text (Left) ────── */}
-          <div style={{ maxWidth: '600px' }} className="text-center lg:text-left mx-auto lg:mx-0">
+          <div style={{ maxWidth: '600px' }} className="text-center lg:text-left mx-auto lg:mx-0 px-4 sm:px-0">
             <span style={{
               display: 'inline-block', background: 'rgba(163,35,142,0.12)', border: '1px solid rgba(163,35,142,0.3)',
               borderRadius: '100px', padding: '6px 18px', fontSize: '0.85rem', color: '#E477C8',
-              fontWeight: 600, marginBottom: '2rem', letterSpacing: '0.04em',
-            }}>
+              fontWeight: 600, marginBottom: '1.5rem', sm: { marginBottom: '2rem' }, letterSpacing: '0.04em',
+            }} className="animate-in">
               ✨ Next-Gen AI English Tutor
             </span>
 
             <h1 style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(2.8rem, 6vw, 4.5rem)',
+              fontSize: 'clamp(2.4rem, 8vw, 4.5rem)',
               fontWeight: 800, lineHeight: 1.1, marginBottom: '1.5rem',
               letterSpacing: '-1px'
             }}>
@@ -58,15 +58,15 @@ export default function HomePage() {
               </span>
             </h1>
 
-            <p style={{ color: 'var(--color-muted)', fontSize: 'clamp(1.05rem, 2.5vw, 1.15rem)', marginBottom: '3rem', lineHeight: 1.75 }}>
+            <p style={{ color: 'var(--color-muted)', fontSize: 'clamp(1rem, 3vw, 1.15rem)', marginBottom: '2.5rem', lineHeight: 1.75 }}>
               Yimaru blends advanced language AI with personalized learning to correct your grammar, perfect your pronunciation, and get you fluent—in just minutes a day.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
-              <Button as={Link} to="/chat" size="lg" style={{ width: '100%', sm: { width: 'auto' }, padding: '0.9rem 2rem', fontSize: '1.05rem', background: 'var(--color-primary)' }}>
+              <Button as={Link} to="/chat" size="lg" className="w-full sm:w-auto" style={{ padding: '0.9rem 2.2rem', fontSize: '1.05rem' }}>
                 🚀 Start for Free
               </Button>
-              <Button as={Link} to="/lessons" variant="outline" size="lg" style={{ width: '100%', sm: { width: 'auto' }, padding: '0.9rem 2rem', fontSize: '1.05rem' }}>
+              <Button as={Link} to="/lessons" variant="outline" size="lg" className="w-full sm:w-auto" style={{ padding: '0.9rem 2.2rem', fontSize: '1.05rem' }}>
                 Explore Features ▶
               </Button>
             </div>
@@ -171,22 +171,22 @@ export default function HomePage() {
       </section>
 
       {/* ───── FEATURES ───── */}
-      <section style={{ padding: 'clamp(3rem, 8vw, 5rem) 1.5rem', background: 'var(--color-dark)' }}>
-        <div className="max-w-6xl mx-auto">
+      <section className="section" style={{ background: 'var(--color-dark)' }}>
+        <div className="container">
           <div className="text-center" style={{ marginBottom: '3rem' }}>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.7rem, 4vw, 2.4rem)', fontWeight: 700, marginBottom: '0.75rem' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.7rem, 5vw, 2.4rem)', fontWeight: 700, marginBottom: '0.75rem' }}>
               Everything You Need to Succeed
             </h2>
             <p style={{ color: 'var(--color-muted)', maxWidth: '500px', margin: '0 auto' }}>
               A complete AI-powered toolkit designed for rapid, lasting English fluency.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             {features.map(({ icon, title, desc }) => (
-              <Card key={title}>
+              <Card key={title} style={{ padding: '1.5rem' }}>
                 <div style={{ fontSize: '2.2rem', marginBottom: '1rem' }}>{icon}</div>
-                <h3 style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: '0.5rem' }}>{title}</h3>
-                <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem', lineHeight: 1.7 }}>{desc}</p>
+                <h3 style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '0.5rem' }}>{title}</h3>
+                <p style={{ color: 'var(--color-muted)', fontSize: '0.93rem', lineHeight: 1.7 }}>{desc}</p>
               </Card>
             ))}
           </div>
@@ -194,18 +194,18 @@ export default function HomePage() {
       </section>
 
       {/* ───── TESTIMONIALS ───── */}
-      <section style={{ padding: 'clamp(3rem, 8vw, 5rem) 1.5rem', background: 'var(--color-surface)' }}>
-        <div className="max-w-5xl mx-auto">
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.7rem, 4vw, 2.2rem)', fontWeight: 700, textAlign: 'center', marginBottom: '3rem' }}>
+      <section className="section" style={{ background: 'var(--color-surface)' }}>
+        <div className="container">
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.7rem, 5vw, 2.2rem)', fontWeight: 700, textAlign: 'center', marginBottom: '3rem' }}>
             What Learners Say
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {testimonials.map(({ name, flag, text, level }) => (
-              <Card key={name} hover={false} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <p style={{ color: 'var(--color-text)', lineHeight: 1.75, fontStyle: 'italic', fontSize: '0.95rem' }}>"{text}"</p>
+              <Card key={name} hover={false} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', padding: '1.5rem' }}>
+                <p style={{ color: 'var(--color-text)', lineHeight: 1.75, fontStyle: 'italic', fontSize: '0.93rem' }}>"{text}"</p>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
                   <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{flag} {name}</span>
-                  <span style={{ color: 'var(--color-primary)', fontSize: '0.78rem', fontWeight: 600, background: 'rgba(108,99,255,0.12)', padding: '3px 10px', borderRadius: '100px' }}>{level}</span>
+                  <span style={{ color: 'var(--color-primary)', fontSize: '0.75rem', fontWeight: 600, background: 'rgba(108,99,255,0.12)', padding: '3px 10px', borderRadius: '100px' }}>{level}</span>
                 </div>
               </Card>
             ))}

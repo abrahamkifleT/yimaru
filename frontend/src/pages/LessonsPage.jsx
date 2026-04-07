@@ -24,27 +24,27 @@ export default function LessonsPage() {
   }
 
   return (
-    <div style={{ padding: '4rem 1.5rem', minHeight: '80vh' }}>
-      <div className="max-w-6xl mx-auto">
+    <div className="section" style={{ minHeight: '80vh' }}>
+      <div className="container">
 
         {/* Header */}
         <div className="text-center" style={{ marginBottom: '2.5rem' }}>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700, marginBottom: '0.75rem' }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.1rem, 5vw, 2.5rem)', fontWeight: 700, marginBottom: '0.75rem' }}>
             📚 Lessons
           </h1>
-          <p style={{ color: 'var(--color-muted)', maxWidth: '480px', margin: '0 auto 2rem' }}>
+          <p style={{ color: 'var(--color-muted)', maxWidth: '480px', margin: '0 auto 1.5rem' }}>
             Structured, AI-powered lessons for every proficiency level.
           </p>
 
           {/* Level filter tabs */}
-          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }} className="animate-in">
             {LEVELS.map(lvl => (
               <button key={lvl} onClick={() => setActiveLevel(lvl)} style={{
-                padding: '6px 20px', borderRadius: '100px', fontWeight: 600, fontSize: '0.875rem',
+                padding: '7px 18px', sm: { padding: '7px 22px' }, borderRadius: '100px', fontWeight: 600, fontSize: '0.85rem',
                 cursor: 'pointer', transition: 'all 0.18s', fontFamily: 'var(--font-sans)',
-                background: activeLevel === lvl ? 'var(--color-primary)' : 'rgba(163,35,142,0.08)',
+                background: activeLevel === lvl ? 'var(--color-primary)' : 'rgba(163,35,142,0.06)',
                 color: activeLevel === lvl ? '#fff' : 'var(--color-muted)',
-                border: activeLevel === lvl ? 'none' : '1px solid rgba(163,35,142,0.2)',
+                border: activeLevel === lvl ? 'none' : '1.5px solid rgba(163,35,142,0.15)',
               }}>
                 {lvl}
               </button>
@@ -59,10 +59,11 @@ export default function LessonsPage() {
               style={{
                 background: 'var(--color-card)',
                 border: '1px solid rgba(163,35,142,0.15)',
-                borderRadius: '16px', padding: '1.5rem',
+                borderRadius: '16px', padding: '1.25rem', sm: { padding: '1.5rem' },
                 transition: 'transform 0.2s, border-color 0.2s, box-shadow 0.2s',
                 cursor: 'pointer', display: 'flex', flexDirection: 'column',
               }}
+              className="animate-in"
               onClick={() => handleStart(lesson)}
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.borderColor = 'rgba(163,35,142,0.4)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.25)' }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(163,35,142,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
@@ -81,7 +82,7 @@ export default function LessonsPage() {
               <h3 style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: '0.5rem' }}>{lesson.title}</h3>
               <p style={{ color: 'var(--color-muted)', fontSize: '0.875rem', lineHeight: 1.65, flex: 1, marginBottom: '1.25rem' }}>{lesson.desc}</p>
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
                 <span style={{ color: 'var(--color-muted)', fontSize: '0.8rem' }}>⏱ {lesson.duration}</span>
                 <span style={{ color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.85rem' }}>+{lesson.xp} XP</span>
               </div>
@@ -89,7 +90,7 @@ export default function LessonsPage() {
               <button
                 onClick={(e) => { e.stopPropagation(); handleStart(lesson) }}
                 style={{
-                  width: '100%', padding: '10px', borderRadius: '10px',
+                  width: '100%', padding: '11px', borderRadius: '10px',
                   background: 'var(--color-primary)', color: '#fff', border: 'none',
                   fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
                   transition: 'opacity 0.2s, transform 0.1s', fontFamily: 'var(--font-sans)',
@@ -97,7 +98,7 @@ export default function LessonsPage() {
                 onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'scale(0.99)' }}
                 onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)' }}
               >
-                🚀 Start with AI Tutor
+                🚀 Start Lesson
               </button>
             </div>
           ))}

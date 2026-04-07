@@ -1,7 +1,7 @@
-export default function ProgressBar({ value = 0, max = 100, color = 'var(--color-primary)', height = 8, showLabel = false }) {
+export default function ProgressBar({ value = 0, max = 100, color = 'var(--color-primary)', height = 8, showLabel = false, className = '' }) {
   const pct = Math.min(100, Math.round((value / max) * 100))
   return (
-    <div>
+    <div className={className}>
       {showLabel && (
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.8rem', color: 'var(--color-muted)' }}>
           <span>Progress</span>

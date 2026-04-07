@@ -1,4 +1,4 @@
-export default function Button({ children, variant = 'primary', size = 'md', style: extra = {}, as: Tag = 'button', ...props }) {
+export default function Button({ children, variant = 'primary', size = 'md', style: extra = {}, as: Tag = 'button', className = '', ...props }) {
   const variants = {
     primary: { background: 'var(--color-primary)', color: '#fff', boxShadow: '0 4px 15px rgba(163,35,142,0.35)' },
     secondary: { background: 'var(--color-secondary)', color: '#fff', boxShadow: '0 4px 15px rgba(72,187,120,0.35)' },
@@ -26,7 +26,7 @@ export default function Button({ children, variant = 'primary', size = 'md', sty
   const onLeave = (e) => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)' }
 
   return (
-    <Tag style={base} onMouseEnter={onEnter} onMouseLeave={onLeave} {...props}>
+    <Tag className={className} style={base} onMouseEnter={onEnter} onMouseLeave={onLeave} {...props}>
       {children}
     </Tag>
   )

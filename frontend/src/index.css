@@ -71,11 +71,40 @@ a { color: inherit; }
 }
 
 /* ── Responsive Helpers ─────────────────────────────────── */
+@media (max-width: 1024px) {
+  .section { padding: 4rem 1.5rem; }
+}
+
 @media (max-width: 768px) {
   .hide-mobile { display: none !important; }
   .stack-mobile { flex-direction: column !important; }
   .full-mobile  { width: 100% !important; }
   .center-mobile { text-align: center !important; }
+  
+  /* Responsive spacing */
+  .section { padding: 3rem 1.25rem; }
+  .container { padding-inline: 1.25rem; }
+}
+
+@media (max-width: 480px) {
+  .section { padding: 2.5rem 1rem; }
+  .container { padding-inline: 1rem; }
+  h1 { font-size: 2.2rem !important; }
+  h2 { font-size: 1.8rem !important; }
+}
+
+/* ── Custom Utilities for Responsiveness ────────────────── */
+.grid-responsive {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 1.5rem;
+}
+
+.aspect-video-mobile {
+  aspect-ratio: 16 / 9;
+}
+@media (max-width: 640px) {
+  .aspect-video-mobile { aspect-ratio: 4 / 3; }
 }
 
 /* ── Scrollbar ──────────────────────────────────────────── */

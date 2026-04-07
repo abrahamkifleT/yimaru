@@ -95,13 +95,13 @@ export default function SignupPage() {
       {/* ── Right panel (form) ── */}
       <div style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '2rem 1.5rem',
+        padding: 'clamp(2rem, 5vw, 4rem) 1.25rem',
         background: 'var(--color-dark)',
       }}>
         <div style={{ width: '100%', maxWidth: '420px' }}>
 
           {/* Mobile-only logo */}
-          <div className="lg:hidden" style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div className="lg:hidden" style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
             <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
               <div style={{ width: '38px', height: '38px', borderRadius: '50%', overflow: 'hidden' }}>
                 <img src="/logo.png" alt="Yimaru" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -113,12 +113,12 @@ export default function SignupPage() {
           </div>
 
           {/* Headings */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.8rem', marginBottom: '0.4rem' }}>
+          <div style={{ marginBottom: '2.5rem', textAlign: 'center' }} className="lg:text-left">
+            <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(1.6rem, 5vw, 1.8rem)', marginBottom: '0.4rem' }}>
               Create an account ✨
             </h1>
             <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem' }}>
-              Sign up to start your learning journey
+              Join us to start your learning journey
             </p>
           </div>
 
@@ -126,9 +126,9 @@ export default function SignupPage() {
           <div style={{
             background: 'var(--color-surface)',
             border: '1px solid rgba(163,35,142,0.15)',
-            borderRadius: '20px', padding: '2rem',
+            borderRadius: '20px', padding: '1.5rem', sm: { padding: '2rem' },
             boxShadow: '0 24px 60px rgba(0,0,0,0.3)',
-          }}>
+          }} className="animate-in">
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 

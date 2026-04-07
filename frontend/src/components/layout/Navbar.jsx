@@ -47,21 +47,27 @@ export default function Navbar() {
       borderBottom: '1px solid rgba(108,99,255,0.18)',
       position: 'sticky', top: 0, zIndex: 50,
     }}>
-      <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '3rem' }}>
+      <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(1rem, 4vw, 3rem)' }}>
           {/* Logo */}
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
             <div style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
               <img src="/logo.png" alt="Yimaru" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.3rem', color: 'var(--color-primary)', letterSpacing: '-0.3px' }}>
+            <span style={{ 
+              fontFamily: 'var(--font-display)', 
+              fontWeight: 800, 
+              fontSize: 'clamp(1.1rem, 3vw, 1.3rem)', 
+              color: 'var(--color-primary)', 
+              letterSpacing: '-0.3px',
+              whiteSpace: 'nowrap'
+            }}>
               Yimaru
             </span>
           </Link>
 
           {/* Desktop nav links */}
-          <ul style={{ display: 'flex', alignItems: 'center', gap: '2rem', listStyle: 'none', margin: 0, padding: 0 }}
+          <ul style={{ alignItems: 'center', gap: '1.50rem', listStyle: 'none', margin: 0, padding: 0 }}
             className="hidden md:flex">
             {allLinks.map(({ to, label, exact }) => (
               <li key={to}>
@@ -74,7 +80,7 @@ export default function Navbar() {
         </div>
 
         {/* Desktop right side */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2 sm:gap-3">
           {isAuthenticated ? (
             <>
               {/* User chip */}
@@ -86,7 +92,7 @@ export default function Navbar() {
                 padding: '6px 14px',
                 fontSize: '0.85rem',
                 fontWeight: 600,
-              }}>
+              }} className="hide-mobile">
                 <span>{user?.avatar ?? '👤'}</span>
                 <span style={{ color: 'var(--color-text)' }}>{user?.name?.split(' ')[0]}</span>
               </div>
@@ -116,19 +122,22 @@ export default function Navbar() {
                 style={{
                   color: 'var(--color-muted)', fontWeight: 600,
                   textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s',
+                  padding: '0 8px'
                 }}
                 onMouseEnter={e => e.currentTarget.style.color = 'var(--color-text)'}
                 onMouseLeave={e => e.currentTarget.style.color = 'var(--color-muted)'}
+                className="hide-mobile"
               >
                 Sign In
               </Link>
               <Link to="/login"
                 style={{
                   background: 'var(--color-primary)', color: '#fff',
-                  padding: '9px 20px', borderRadius: '9px',
+                  padding: '9px 18px', borderRadius: '9px',
                   fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none',
                   boxShadow: '0 4px 14px rgba(108,99,255,0.35)',
                   transition: 'opacity 0.2s, transform 0.2s',
+                  whiteSpace: 'nowrap'
                 }}
                 onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)' }}
                 onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)' }}

@@ -1,4 +1,4 @@
-export default function Card({ children, style = {}, hover = true, glass = false, ...props }) {
+export default function Card({ children, style = {}, hover = true, glass = false, className = '', ...props }) {
   const base = {
     background: glass 
       ? 'rgba(32, 20, 39, 0.6)' 
@@ -8,7 +8,7 @@ export default function Card({ children, style = {}, hover = true, glass = false
       : '1px solid rgba(163,35,142,0.12)',
     backdropFilter: glass ? 'blur(20px)' : undefined,
     borderRadius: '16px',
-    padding: '1.5rem',
+    padding: 'clamp(1rem, 4vw, 1.5rem)',
     transition: 'transform 0.2s, border-color 0.2s, box-shadow 0.2s',
   }
 
@@ -26,7 +26,7 @@ export default function Card({ children, style = {}, hover = true, glass = false
   }
 
   return (
-    <div style={{ ...base, ...style }} onMouseEnter={onEnter} onMouseLeave={onLeave} {...props}>
+    <div className={className} style={{ ...base, ...style }} onMouseEnter={onEnter} onMouseLeave={onLeave} {...props}>
       {children}
     </div>
   )

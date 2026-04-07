@@ -6,10 +6,10 @@ const colorMap = {
   violet: { bg: 'rgba(167,139,250,0.15)', text: '#A78BFA' },
 }
 
-export default function Badge({ children, color = 'purple', style = {} }) {
+export default function Badge({ children, color = 'purple', style = {}, className = '' }) {
   const { bg, text } = colorMap[color] ?? colorMap.purple
   return (
-    <span style={{
+    <span className={className} style={{
       display: 'inline-block',
       background: bg,
       color: text,

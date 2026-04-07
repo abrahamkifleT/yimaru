@@ -144,6 +144,7 @@ export default function ChatPage() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Text-to-Speech
   const tts = useTextToSpeech()
@@ -279,28 +280,42 @@ export default function ChatPage() {
 
       <div style={{ display: 'flex', height: 'calc(100vh - 65px)', overflow: 'hidden', background: 'var(--color-dark)' }}>
 
-        {/* ── Sidebar ───────────────────────────────────────────── */}
+        {/* ── Sidebar (Drawer on mobile) ───────────────────────── */}
+        {sidebarOpen && (
+          <div 
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 60, backdropFilter: 'blur(4px)' }} 
+            className="md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        
         <aside style={{
           width: '260px', flexShrink: 0,
           background: 'var(--color-surface)',
           borderRight: '1px solid rgba(108,99,255,0.15)',
           display: 'flex', flexDirection: 'column',
-          transition: 'width 0.25s ease',
-        }} className="hidden md:flex">
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          position: 'relative',
+          zIndex: 70,
+        }} className={`fixed md:relative inset-y-0 left-0 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} md:flex`}>
 
           {/* Sidebar header */}
-          <div style={{ padding: '1.25rem', borderBottom: '1px solid rgba(108,99,255,0.12)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
+          <div style={{ padding: '1.25rem', borderBottom: '1px solid rgba(108,99,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
                 <img src="/logo.png" alt="Yimaru" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Yimaru AI</div>
+                <div style={{ fontWeight: 700, fontSize: '0.92rem' }}>Yimaru AI</div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--color-secondary)' }}>● GPT-4o-mini</div>
               </div>
             </div>
-            <button onClick={clearChat} style={{
-              width: '100%', padding: '9px', borderRadius: '8px',
+            <button className="md:hidden" onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--color-muted)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+          </div>
+
+          <div style={{ padding: '1.25rem' }}>
+            <button onClick={() => { clearChat(); setSidebarOpen(false); }} style={{
+              width: '100%', padding: '10px', borderRadius: '10px',
               background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.25)',
               color: 'var(--color-text)', fontSize: '0.85rem', cursor: 'pointer',
               transition: 'background 0.2s', fontFamily: 'var(--font-sans)',
@@ -352,27 +367,34 @@ export default function ChatPage() {
 
           {/* Chat header */}
           <div style={{
-            padding: '0.9rem 1.5rem',
+            padding: '0.9rem 1rem', sm: { padding: '0.9rem 1.5rem' },
             borderBottom: '1px solid rgba(108,99,255,0.15)',
             background: 'var(--color-surface)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
+              <button 
+                onClick={() => setSidebarOpen(true)}
+                className="md:hidden"
+                style={{ background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.2)', borderRadius: '8px', padding: '8px', color: 'var(--color-primary)', cursor: 'pointer' }}
+              >
+                ☰
+              </button>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }} className="hide-mobile">
                 <img src="/logo.png" alt="Yimaru" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Yimaru AI Tutor</div>
-                <div style={{ fontSize: '0.75rem', color: isLoading ? 'var(--color-accent)' : 'var(--color-secondary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: isLoading ? 'var(--color-accent)' : 'var(--color-secondary)', display: 'inline-block', animation: isLoading ? 'typingBounce 1s infinite' : 'none' }} />
+                <div style={{ fontWeight: 700, fontSize: '0.92rem' }}>Yimaru AI Tutor</div>
+                <div style={{ fontSize: '0.72rem', color: isLoading ? 'var(--color-accent)' : 'var(--color-secondary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isLoading ? 'var(--color-accent)' : 'var(--color-secondary)', display: 'inline-block', animation: isLoading ? 'typingBounce 1s infinite' : 'none' }} />
                   {isLoading ? 'Thinking…' : 'Online · GPT-4o-mini'}
                 </div>
               </div>
             </div>
             <button onClick={clearChat}
-              style={{ background: 'none', border: '1px solid rgba(108,99,255,0.25)', borderRadius: '8px', padding: '6px 14px', color: 'var(--color-muted)', fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'var(--font-sans)' }}
+              style={{ background: 'none', border: '1px solid rgba(108,99,255,0.2)', borderRadius: '8px', padding: '6px 12px', color: 'var(--color-muted)', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'var(--font-sans)', whiteSpace: 'nowrap' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.color = 'var(--color-primary)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(108,99,255,0.25)'; e.currentTarget.style.color = 'var(--color-muted)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(108,99,255,0.2)'; e.currentTarget.style.color = 'var(--color-muted)' }}
             >
               🗑 Clear
             </button>
