@@ -80,11 +80,11 @@ export default function PracticePage() {
             <div key={mod.id} style={{
               background: 'var(--color-card)',
               border: `1.5px solid ${mod.available ? mod.color + '33' : 'rgba(255,255,255,0.05)'}`,
-              borderRadius: '20px', padding: '1.5rem sm:2rem',
+              borderRadius: '20px', 
               transition: 'all 0.2s', opacity: mod.available ? 1 : 0.75,
               cursor: mod.available ? 'pointer' : 'default',
             }}
-              className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 animate-in"
+              className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 animate-in p-6 sm:p-8"
               onMouseEnter={e => { if (mod.available) { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.3)' } }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
               onClick={() => handleStart(mod)}
@@ -101,7 +101,7 @@ export default function PracticePage() {
 
               {/* Text Content */}
               <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', flexDirection: 'column-reverse sm:row', alignItems: 'center sm:center', gap: '0.5rem', marginBottom: '0.6rem' }} className="sm:flex-row">
+                <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3 mb-2">
                   <h3 style={{ fontWeight: 800, fontSize: '1.2rem', margin: 0 }}>{mod.title}</h3>
                   <span style={{
                     fontSize: '0.68rem', fontWeight: 800, padding: '3px 12px', borderRadius: '100px',
@@ -117,16 +117,17 @@ export default function PracticePage() {
               </div>
 
               {/* CTA Button */}
-              <div style={{ flexShrink: 0, width: '100%', sm: 'auto' }}>
+              <div className="w-full sm:w-auto shrink-0 mt-2 sm:mt-0">
                 <button
                   onClick={(e) => { e.stopPropagation(); handleStart(mod) }}
                   style={{
-                    width: '100%', sm: 'auto', padding: '11px 26px', borderRadius: '12px', fontWeight: 700, fontSize: '0.92rem',
+                    padding: '11px 26px', borderRadius: '12px', fontWeight: 700, fontSize: '0.92rem',
                     cursor: 'pointer', transition: 'all 0.18s', fontFamily: 'var(--font-sans)',
                     background: mod.available ? mod.color : 'rgba(255,255,255,0.08)',
                     color: mod.available ? '#fff' : 'rgba(255,255,255,0.4)',
                     border: 'none',
                   }}
+                  className="w-full sm:w-auto"
                 >
                   {mod.available ? '▶ Start Now' : '🔒 Locked'}
                 </button>

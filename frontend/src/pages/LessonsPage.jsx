@@ -40,12 +40,14 @@ export default function LessonsPage() {
           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }} className="animate-in">
             {LEVELS.map(lvl => (
               <button key={lvl} onClick={() => setActiveLevel(lvl)} style={{
-                padding: '7px 18px', sm: { padding: '7px 22px' }, borderRadius: '100px', fontWeight: 600, fontSize: '0.85rem',
+                borderRadius: '100px', fontWeight: 600, fontSize: '0.85rem',
                 cursor: 'pointer', transition: 'all 0.18s', fontFamily: 'var(--font-sans)',
                 background: activeLevel === lvl ? 'var(--color-primary)' : 'rgba(163,35,142,0.06)',
                 color: activeLevel === lvl ? '#fff' : 'var(--color-muted)',
                 border: activeLevel === lvl ? 'none' : '1.5px solid rgba(163,35,142,0.15)',
-              }}>
+              }}
+              className="px-4.5 py-1.75 sm:px-5.5 sm:py-1.75"
+              >
                 {lvl}
               </button>
             ))}
@@ -59,11 +61,11 @@ export default function LessonsPage() {
               style={{
                 background: 'var(--color-card)',
                 border: '1px solid rgba(163,35,142,0.15)',
-                borderRadius: '16px', padding: '1.25rem', sm: { padding: '1.5rem' },
+                borderRadius: '16px',
                 transition: 'transform 0.2s, border-color 0.2s, box-shadow 0.2s',
                 cursor: 'pointer', display: 'flex', flexDirection: 'column',
               }}
-              className="animate-in"
+              className="animate-in p-5 sm:p-6"
               onClick={() => handleStart(lesson)}
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.borderColor = 'rgba(163,35,142,0.4)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.25)' }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(163,35,142,0.15)'; e.currentTarget.style.boxShadow = 'none' }}

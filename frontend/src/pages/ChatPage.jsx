@@ -71,7 +71,7 @@ function MessageBubble({ msg, tts }) {
       animation: 'fadeSlideIn 0.2s ease',
     }}>
       <Avatar role={msg.role} />
-      <div style={{ maxWidth: '88%', sm: { maxWidth: '78%' }, display: 'flex', flexDirection: 'column', gap: '4px', alignItems: isUser ? 'flex-end' : 'flex-start' }} className="message-container">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: isUser ? 'flex-end' : 'flex-start' }} className="message-container max-w-[88%] sm:max-w-[78%]">
         <div style={{
           background: isUser ? 'var(--color-primary)' : 'var(--color-card)',
           border: isUser ? 'none' : '1px solid rgba(108,99,255,0.18)',
