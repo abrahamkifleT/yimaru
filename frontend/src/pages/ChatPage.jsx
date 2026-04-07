@@ -71,7 +71,7 @@ function MessageBubble({ msg, tts }) {
       animation: 'fadeSlideIn 0.2s ease',
     }}>
       <Avatar role={msg.role} />
-      <div style={{ maxWidth: '78%', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: isUser ? 'flex-end' : 'flex-start' }}>
+      <div style={{ maxWidth: '88%', sm: { maxWidth: '78%' }, display: 'flex', flexDirection: 'column', gap: '4px', alignItems: isUser ? 'flex-end' : 'flex-start' }} className="message-container">
         <div style={{
           background: isUser ? 'var(--color-primary)' : 'var(--color-card)',
           border: isUser ? 'none' : '1px solid rgba(108,99,255,0.18)',
@@ -278,7 +278,7 @@ export default function ChatPage() {
         .chat-textarea:focus { outline: none; border-color: var(--color-primary) !important; }
       `}</style>
 
-      <div style={{ display: 'flex', height: 'calc(100vh - 65px)', overflow: 'hidden', background: 'var(--color-dark)' }}>
+      <div style={{ height: 'calc(100vh - 65px)', overflow: 'hidden', background: 'var(--color-dark)' }} className="flex">
 
         {/* ── Sidebar (Drawer on mobile) ───────────────────────── */}
         {sidebarOpen && (
@@ -293,11 +293,10 @@ export default function ChatPage() {
           width: '260px', flexShrink: 0,
           background: 'var(--color-surface)',
           borderRight: '1px solid rgba(108,99,255,0.15)',
-          display: 'flex', flexDirection: 'column',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           position: 'relative',
           zIndex: 70,
-        }} className={`fixed md:relative inset-y-0 left-0 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} md:flex`}>
+        }} className={`fixed md:relative inset-y-0 left-0 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} hidden md:flex md:flex-col`}>
 
           {/* Sidebar header */}
           <div style={{ padding: '1.25rem', borderBottom: '1px solid rgba(108,99,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -363,15 +362,14 @@ export default function ChatPage() {
         </aside>
 
         {/* ── Chat pane ─────────────────────────────────────────── */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ flex: 1, overflow: 'hidden' }} className="flex flex-col">
 
           {/* Chat header */}
           <div style={{
-            padding: '0.9rem 1rem', sm: { padding: '0.9rem 1.5rem' },
+            padding: '0.8rem 1rem',
             borderBottom: '1px solid rgba(108,99,255,0.15)',
             background: 'var(--color-surface)',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          }}>
+          }} className="flex items-center justify-between">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <button 
                 onClick={() => setSidebarOpen(true)}
@@ -476,13 +474,14 @@ export default function ChatPage() {
             )}
 
             <form onSubmit={handleSubmit} style={{
-              display: 'flex', gap: '0.75rem', alignItems: 'flex-end',
+              alignItems: 'flex-end',
               background: 'var(--color-card)',
               border: '1.5px solid rgba(108,99,255,0.25)',
               borderRadius: '14px',
               padding: '0.6rem 0.75rem 0.6rem 1rem',
               transition: 'border-color 0.2s',
             }}
+              className="flex gap-2 sm:gap-3"
               onFocusCapture={e => e.currentTarget.style.borderColor = 'var(--color-primary)'}
               onBlurCapture={e => e.currentTarget.style.borderColor = 'rgba(108,99,255,0.25)'}
             >
